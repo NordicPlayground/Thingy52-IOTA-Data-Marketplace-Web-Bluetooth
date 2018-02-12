@@ -1,8 +1,5 @@
 import {Thingy} from "./vendor/thingy.js";
 
-var iota = new IOTA({
-});
-
 var thingy = new Thingy({logEnabled: true});
 
 document.thingy = thingy;
