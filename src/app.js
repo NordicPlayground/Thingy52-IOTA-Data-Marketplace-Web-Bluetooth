@@ -1,14 +1,10 @@
-
-// var Thingy = require("./vendor/thingy.js") ;
-// var Mam = require("./vendor/mam.web.js");
-// import {Mam} from "./vendor/mam.web.js";
 import {Thingy} from "./vendor/thingy.js";
 import {publish} from "./data_publisher.js";
 
 
 // console.log("Mam:  ", Mam);
 console.log("Thingy:  ", Thingy);
-console.log("publish:  ", publish);
+//console.log("publish:  ", publish);
 
 var thingy = new Thingy({logEnabled: true});
 
@@ -54,8 +50,9 @@ async function start(device) {
 	await device.microphoneEnable(print_readout("#microphone-readout"), true);
 }
 
-window.onload = function () {
+window.addEventListener('load', function () {
 	document.querySelector("#connect").addEventListener("click", async () => {
+		publish({'temperature': 20});
 		await start(thingy);
 	})
-};
+});
