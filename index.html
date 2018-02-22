@@ -3,83 +3,105 @@
 	<head>
 		<meta charset="utf-8">
 		<title>IOTA Thingy</title>
-		<!-- <script type="text/javascript" src="js/vendor/iota.min.js"></script> -->
-		<!-- <script type="module" src="js/vendor/mam.web.js"></script>  -->
-		<!-- <script type="text/javascript" src="js/data_publisher.js"></script> -->	
+		<link type="text/css" rel="stylesheet" href="/css/bootstrap.min.css">
 		<script type="module" src="bundle.js"></script>
-		
 	</head>
 	<body>
-		<button id="connect">Connect</button>
-		<table>
-			<tr>
-				<th>Battery</th>
-				<td><span id="battery-readout"></span></td>
-			</tr>
-			<tr>
-				<th>Temperature</th>
-				<td><span id="temperature-readout"></span></td>
-			</tr>
-			<tr>
-				<th>Pressure</th>
-				<td><span id="pressure-readout"></span></td>
-			</tr>
-			<tr>
-				<th>Humidity</th>
-				<td><span id="humidity-readout"></span></td>
-			</tr>
-			<tr>
-				<th>Gas</th>
-				<td><span id="gas-readout"></span></td>
-			</tr>
-			<tr>
-				<th>Color</th>
-				<td><span id="color-readout"></span></td>
-			</tr>
-			<tr>
-				<th>Button</th>
-				<td><span id="button-readout"></span></td>
-			</tr>
-			<tr>
-				<th>Tap</th>
-				<td><span id="tap-readout"></span></td>
-			</tr>
-			<tr>
-				<th>Orientation</th>
-				<td><span id="orientation-readout"></span></td>
-			</tr>
-			<tr>
-				<th>Quaternion</th>
-				<td><span id="quaternion-readout"></span></td>
-			</tr>
-			<tr>
-				<th>Step</th>
-				<td><span id="step-readout"></span></td>
-			</tr>
-			<tr>
-				<th>Motion (raw)</th>
-				<td><span id="motion-readout"></span></td>
-			</tr>
-			<tr>
-				<th>Euler</th>
-				<td><span id="euler-readout"></span></td>
-			</tr>
-			<tr>
-				<th>Rotation Matrix</th>
-				<td><span id="rotation-matrix-readout"></span></td>
-			</tr>
-			<tr>
-				<th>Heading</th>
-				<td><span id="heading-readout"></span></td>
-			</tr>
-			<tr>
-				<th>Gravity Vector</th>
-				<td><span id="gravity-readout"></span></td>
-			</tr>
-			<tr>
-				<th>Microphone</th>
-				<td><span id="microphone-readout"></span></td>
-			</tr>
-		</table>
+		<div class="container">
+			<h1>IOTA Thingy-data publisher</h1>
+
+			<section>
+				<h2>Thingy</h2>
+
+				<div class="row">
+					<div class="col-md-4">
+						<table class="table table-sm">
+							<tr>
+								<th>Connected</th>
+								<td id="thingy-status-connected"><span class="text-danger">&#x2715;</span> No</td>
+							</tr>
+
+							<tr>
+								<th>Name</th>
+								<td id="thingy-status-name"><span class="text-muted">n/a</span></td>
+							</tr>
+
+							<tr>
+								<th>Battery</th>
+								<td id="thingy-status-battery"><span class="text-muted">n/a</span></td>
+							</tr>
+						</table>
+					</div>
+				</div>
+				<button id="connect" class="btn btn-success">Connect</button>
+			</section>
+
+			<section>
+				<h2>Settings</h2>
+
+				<div class="row">
+					<div class="col-md-4">
+						<table class="table table-sm">
+							<tr>
+								<th>Status</th>
+								<td id="publish-status">Not publishing</td>
+							</tr>
+							<tr>
+								<th>Next publish</th>
+								<td id="publish-status-next-time"><span class="text-muted">Never</span></td>
+							</tr>
+						</table>
+					</div>
+				</div>
+
+				<form id="settings-form">
+					<div class="row">
+						<div class="form-group col-md-4">
+							<label class="lead">How often should the data be published</label>
+							<div class="input-group input-group-lg">
+								<div class="input-group-prepend">
+									<span class="input-group-text">Every</span>
+								</div>
+								<input class="form-control" type="number" name="send_interval" id="send-interval" value="10">
+								<div class="input-group-append">
+									<span class="input-group-text">minutes</span>
+								</div>
+							</div>
+						</div>
+					</div>
+
+					<div class="form-group">
+						<label class="lead">Select what sensor data should be published</label>
+
+						<div class="form-check">
+							<input class="form-check-input" type="checkbox" id="send-temperature" name="send_temperature">
+							<label class="form-check-label" for="send-temperature">Temperature</label>
+						</div>
+
+						<div class="form-check">
+							<input  class="form-check-input" type="checkbox" id="send-pressure" name="send_pressure">
+							<label class="form-check-label" for="send-pressure">Pressure</label>
+						</div>
+
+						<div class="form-check">
+							<input class="form-check-input" type="checkbox" id="send-humidity" name="send_humidity">
+							<label class="form-check-label" for="send-humidity">Humidity</label>
+						</div>
+
+						<div class="form-check">
+							<input class="form-check-input" type="checkbox" id="send-gas" name="send_gas">
+							<label class="form-check-label" for="send-gas">Gas</label>
+						</div>
+					</div>
+
+					<div class="form-group">
+					</div>
+				</form>
+
+				<button id="toggle-publish" class="btn btn-success">Start publishing</button>
+
+			</section>
+
+		</div>
 	</body>
 </html>
