@@ -17,8 +17,7 @@ async function connect(device) {
 			}
 			thingy_connected = false;
 		}
-		document.querySelector("#thingy-status-connected").innerHTML =
-			'Connecting...';
+		document.querySelector("#thingy-status-connected").innerHTML = 'Connecting...';
 
 		let error = await device.connect();
 
@@ -59,7 +58,7 @@ async function connect(device) {
 
 let publishing_interval = null;
 
-function start_publishing() {
+async function start_publishing() {
 	let form = document.querySelector("#settings-form")
 	let interval = parseInt(form.querySelector("#send-interval").value);
 	let channels = {
@@ -74,8 +73,35 @@ function start_publishing() {
 		clearInterval(publishing_interval);
 	}
 
-	setInterval(function() {
+	let packet = {}
+
+	if (channels.temperature) {
+		await device.temperatureLevelEnable(function(data) {
+			packet.temperature = data.value;
+		}, true);
+	}
+	if (channels.pressure) {
+		await device.pressureLevelEnable(function(data) {
+			packet.pressure = data.value;
+		}, true);
+	}
+	if (channels.humidity) {
+		await device.humidityLevelEnable(function(data) {
+			packet.humidity = data.value;
+		}, true);
+	}	
+	if (channels.gas) {
+		await device.gasLevelEnable(function(data) {
+			packet.gas = data.value;
+		}, true);
+	}
+
+	setInterval(async function() {
 		console.log("publish", channels);
+
+		if (packet !== {}){
+			await publish(packet);
+		}
 	}, 1000 * interval);
 
 	document.querySelector("#publish-status").innerHTML =
