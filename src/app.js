@@ -1,58 +1,125 @@
 import {Thingy} from "./vendor/thingy.js";
 import {publish} from "./data_publisher.js";
 
+let thingy = new Thingy({logEnabled: true});
+let thingy_connected = false;
 
-// console.log("Mam:  ", Mam);
-console.log("Thingy:  ", Thingy);
-//console.log("publish:  ", publish);
-
-var thingy = new Thingy({logEnabled: true});
+let publishing = false;
 
 document.thingy = thingy;
 
-async function start(device) {
-	await device.connect();
-	await device.ledConstant({red: 255, green: 0, blue: 0});
-
-	function print_readout(name) {
-		return function(data) {
-			document.querySelector(name).innerHTML = JSON.stringify(data);
+async function connect(device) {
+	try {
+		if (thingy_connected) {
+			let error = await thingy.disconnect();
+			if (error) {
+				console.log("Failed to disconnect:", error);
+			}
+			thingy_connected = false;
 		}
+		document.querySelector("#thingy-status-connected").innerHTML =
+			'Connecting...';
+
+		let error = await device.connect();
+
+		if (error) {
+			let message = '<span class="text-danger">&#x2715;</span> Connection failed';
+
+			if (/User cancelled/.test(error.message)) {
+				message = '<span class="text-danger">&#x2715;</span> No';
+			}
+
+			document.querySelector("#thingy-status-connected").innerHTML = message;
+			console.log(error);
+			return false;
+		}
+		thingy_connected = true;
+
+		document.querySelector("#thingy-status-connected").innerHTML =
+			'<span class="text-success">&#x2713;</span> Yes';
+		document.querySelector("#thingy-status-battery").innerHTML =
+			'<span class="text-muted">Please wait</span>';
+		document.querySelector("#thingy-status-name").innerHTML = await device.getName();
+
+		await device.ledBreathe({color: 'green', intensity: 100, delay: 2000});
+
+		await device.batteryLevelEnable(function(data) {
+			document.querySelector("#thingy-status-battery").innerHTML =
+				data.value + " " + data.unit;
+		}, true);
+
+		return true;
+	} catch (err) {
+		document.querySelector("#thingy-status-connected").innerHTML =
+			'<span class="text-danger">&#x2715;</span> Connection failed';
+		console.log(err);
+		return false;
+	}
+}
+
+let publishing_interval = null;
+
+function start_publishing() {
+	let form = document.querySelector("#settings-form")
+	let interval = parseInt(form.querySelector("#send-interval").value);
+	let channels = {
+		'temperature': form.querySelector("#send-temperature").checked,
+		'pressure': form.querySelector("#send-pressure").checked,
+		'humidity': form.querySelector("#send-humidity").checked,
+		'gas': form.querySelector("#send-gas").checked,
+	};
+	interval = Math.max(interval, 1);
+
+	if (publishing_interval != null) {
+		clearInterval(publishing_interval);
 	}
 
-	await device.batteryLevelEnable(print_readout("#battery-readout"), true);
+	setInterval(function() {
+		console.log("publish", channels);
+	}, 1000 * interval);
 
-	await device.setTemperatureInterval(1000);
-	await device.temperatureEnable(print_readout("#temperature-readout"), true);
+	document.querySelector("#publish-status").innerHTML =
+		"Idle";
+}
 
-	await device.setPressureInterval(1000);
-	await device.pressureEnable(print_readout("#pressure-readout"), true);
+function stop_publishing() {
+	if (publishing_interval != null) {
+		clearInterval(publishing_interval);
+	}
 
-	await device.setHumidityInterval(1000);
-	await device.humidityEnable(print_readout("#humidity-readout"), true);
-
-	await device.setGasInterval(10);
-	await device.gasEnable(print_readout("#gas-readout"), true);
-
-	await device.setColorInterval(1000);
-	await device.colorEnable(print_readout("#color-readout"), true);
-
-	await device.buttonEnable(print_readout("#button-readout"), true);
-	await device.tapEnable(print_readout("#tap-readout"), true);
-	await device.orientationEnable(print_readout("#orientation-readout"), true);
-	await device.quaternionEnable(print_readout("#quaternion-readout"), true);
-	await device.stepEnable(print_readout("#step-readout"), true);
-	await device.motionRawEnable(print_readout("#motion-readout"), true);
-	await device.eulerEnable(print_readout("#euler-readout"), true);
-	await device.rotationMatrixEnable(print_readout("#rotation-matrix-readout"), true);
-	await device.headingEnable(print_readout("#heading-readout"), true);
-	await device.gravityVectorEnable(print_readout("#gravity-readout"), true);
-	await device.microphoneEnable(print_readout("#microphone-readout"), true);
+	document.querySelector("#publish-status").innerHTML =
+		"Not publishing";
+	document.querySelector("#publish-status-next-time").innerHTML =
+		'<span class="text-muted">Never</span>';
 }
 
 window.addEventListener('load', function () {
 	document.querySelector("#connect").addEventListener("click", async () => {
-		publish({'temperature': 20});
-		await start(thingy);
+		await connect(thingy);
+	})
+
+	var toggle_publishing = document.querySelector("#toggle-publish");
+	toggle_publishing.addEventListener("click", async () => {
+		let form = document.querySelector("#settings-form")
+		let inputs = form.getElementsByTagName("input");
+
+		publishing = !publishing;
+
+		for (let input of inputs) {
+			input.disabled = publishing;
+		}
+
+		if (publishing) {
+			toggle_publishing.classList.add("btn-danger");
+			toggle_publishing.classList.remove("btn-success");
+			toggle_publishing.innerHTML = "Stop publishing";
+
+			start_publishing();
+		} else {
+			toggle_publishing.classList.add("btn-success");
+			toggle_publishing.classList.remove("btn-danger");
+			toggle_publishing.innerHTML = "Start publishing";
+			stop_publishing();
+		}
 	})
 });
