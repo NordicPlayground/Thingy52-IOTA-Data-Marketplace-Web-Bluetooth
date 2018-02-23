@@ -59,7 +59,7 @@ async function connect(device) {
 let publishing_interval = null;
 
 async function start_publishing() {
-	let form = document.querySelector("#settings-form")
+	let form = document.querySelector("#settings-form");
 	let interval = parseInt(form.querySelector("#send-interval").value);
 	let channels = {
 		'temperature': form.querySelector("#send-temperature").checked,
@@ -73,7 +73,7 @@ async function start_publishing() {
 		clearInterval(publishing_interval);
 	}
 
-	let packet = {}
+	let packet = {};
 
 	if (channels.temperature) {
 		await device.temperatureLevelEnable(function(data) {
@@ -122,11 +122,11 @@ function stop_publishing() {
 window.addEventListener('load', function () {
 	document.querySelector("#connect").addEventListener("click", async () => {
 		await connect(thingy);
-	})
+	});
 
-	var toggle_publishing = document.querySelector("#toggle-publish");
+	let toggle_publishing = document.querySelector("#toggle-publish");
 	toggle_publishing.addEventListener("click", async () => {
-		let form = document.querySelector("#settings-form")
+		let form = document.querySelector("#settings-form");
 		let inputs = form.getElementsByTagName("input");
 
 		publishing = !publishing;
