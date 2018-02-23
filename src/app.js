@@ -84,21 +84,21 @@ async function start_publishing(device) {
 	}
 	if (channels.pressure) {
 		await device.pressureEnable(function(data) {
-			packet.pressure = data.value;
+			packet.pressure = data.value.toString();
 			document.querySelector("#pressure-readout").innerHTML =
 				data.value + " " + data.unit;
 		}, true);
 	}
 	if (channels.humidity) {
 		await device.humidityEnable(function(data) {
-			packet.humidity = data.value;
+			packet.humidity = data.value.toString();
 			document.querySelector("#humidity-readout").innerHTML =
 				data.value + " " + data.unit;
 		}, true);
 	}
 	if (channels.gas) {
 		await device.gasEnable(function(data) {
-			packet.co2 = data.eCO2.value;
+			packet.co2 = data.eCO2.value.toString();
 			document.querySelector("#gas-readout").innerHTML =
 				data.eCO2.value + " " + data.eCO2.unit;
 		}, true);
@@ -113,7 +113,7 @@ async function start_publishing(device) {
 				data: packet
 			});
 		}
-	}, 1000 * interval);
+	}, 1000 * 60 * interval);
 
 	document.querySelector("#publish-status").innerHTML =
 		"Idle";
