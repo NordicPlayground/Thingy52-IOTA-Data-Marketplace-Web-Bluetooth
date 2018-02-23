@@ -58,7 +58,7 @@ async function connect(device) {
 
 let publishing_interval = null;
 
-async function start_publishing() {
+async function start_publishing(device) {
 	let form = document.querySelector("#settings-form");
 	let interval = parseInt(form.querySelector("#send-interval").value);
 	let channels = {
@@ -98,9 +98,9 @@ async function start_publishing() {
 	}
 	if (channels.gas) {
 		await device.gasEnable(function(data) {
-			packet.gas = data.value;
+			packet.co2 = data.eCO2.value;
 			document.querySelector("#gas-readout").innerHTML =
-				data.value + " " + data.unit;
+				data.eCO2.value + " " + data.eCO2.unit;
 		}, true);
 	}
 
@@ -108,7 +108,10 @@ async function start_publishing() {
 		console.log("publish", packet);
 
 		if (packet !== {}){
-			await publish(packet);
+			await publish({
+				time: Date.now(),
+				data: packet
+			});
 		}
 	}, 1000 * interval);
 

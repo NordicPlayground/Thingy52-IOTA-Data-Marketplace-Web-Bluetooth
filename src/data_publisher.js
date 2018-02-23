@@ -5,9 +5,9 @@ var iota = new IOTA({ provider: 'https://testnet140.tangle.works' });
 let Mam;
 
 // Set Varibles
-var debug = true // Set to 'false' to publish data live
-let uuid = 'thingy-01' // Your device ID is here.
-let secretKey = 'THZDQLZMWESXIHI' // Your device's secret key here
+var debug = false; // Set to 'false' to publish data live
+let uuid = 'thingy-02'; // Your device ID is here.
+let secretKey = 'T9XKPHUAMYBIPVC'; // Your device's secret key here
 
 // API end point
 let endpoint = 'https://api.marketplace.tangle.works/newData'
@@ -51,6 +51,7 @@ export const publish = async packet => {
 	// Attach the payload.
 	await Mam.attach(message.payload, message.address)
 	console.log('Attached Message')
+	console.log(packet, message.address, mamKey);
 
 	if (!debug) {
 		// Push the MAM root to the demo DB
