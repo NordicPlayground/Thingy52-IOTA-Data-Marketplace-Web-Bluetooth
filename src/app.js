@@ -40,7 +40,7 @@ async function connect(device) {
 			'<span class="text-muted">Please wait</span>';
 		document.querySelector("#thingy-status-name").innerHTML = await device.getName();
 
-		await device.ledBreathe({color: 'green', intensity: 100, delay: 2000});
+		await device.ledBreathe({color: 'red', intensity: 100, delay: 2000});
 
 		await device.batteryLevelEnable(function(data) {
 			document.querySelector("#thingy-status-battery").innerHTML =
@@ -76,28 +76,36 @@ async function start_publishing() {
 	let packet = {};
 
 	if (channels.temperature) {
-		await device.temperatureLevelEnable(function(data) {
+		await device.temperatureEnable(function(data) {
 			packet.temperature = data.value;
+			document.querySelector("#temperature-readout").innerHTML =
+				data.value + " " + data.unit;
 		}, true);
 	}
 	if (channels.pressure) {
-		await device.pressureLevelEnable(function(data) {
+		await device.pressureEnable(function(data) {
 			packet.pressure = data.value;
+			document.querySelector("#pressure-readout").innerHTML =
+				data.value + " " + data.unit;
 		}, true);
 	}
 	if (channels.humidity) {
-		await device.humidityLevelEnable(function(data) {
+		await device.humidityEnable(function(data) {
 			packet.humidity = data.value;
+			document.querySelector("#humidity-readout").innerHTML =
+				data.value + " " + data.unit;
 		}, true);
-	}	
+	}
 	if (channels.gas) {
-		await device.gasLevelEnable(function(data) {
+		await device.gasEnable(function(data) {
 			packet.gas = data.value;
+			document.querySelector("#gas-readout").innerHTML =
+				data.value + " " + data.unit;
 		}, true);
 	}
 
 	setInterval(async function() {
-		console.log("publish", channels);
+		console.log("publish", packet);
 
 		if (packet !== {}){
 			await publish(packet);
@@ -140,7 +148,7 @@ window.addEventListener('load', function () {
 			toggle_publishing.classList.remove("btn-success");
 			toggle_publishing.innerHTML = "Stop publishing";
 
-			start_publishing();
+			start_publishing(thingy);
 		} else {
 			toggle_publishing.classList.add("btn-success");
 			toggle_publishing.classList.remove("btn-danger");
