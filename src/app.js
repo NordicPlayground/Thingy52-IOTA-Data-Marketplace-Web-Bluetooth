@@ -104,16 +104,17 @@ async function start_publishing(device) {
 		}, true);
 	}
 
-	setInterval(async function() {
-		console.log("publish", packet);
-
-		if (packet !== {}){
+	let do_publish = async () => {
+		countDown(60*interval);
+		if (!(Object.keys(packet).length === 0 && packet.constructor === Object)){
 			await publish({
 				time: Date.now(),
 				data: packet
 			});
 		}
-	}, 1000 * 60 * interval);
+	}
+	do_publish();
+	setInterval(do_publish, 1000 * 60 * interval);
 
 	document.querySelector("#publish-status").innerHTML =
 		"Idle";
@@ -160,3 +161,11 @@ window.addEventListener('load', function () {
 		}
 	})
 });
+
+function countDown(i) {
+    var int = setInterval(function () {
+        document.getElementById("publish-status-next-time").innerHTML = i + "s";
+        i-- || clearInterval(int);  //if i is 0, then stop the interval
+	}, 1000);
+}
+
