@@ -6,6 +6,14 @@ let thingy_connected = false;
 
 let publishing = false;
 
+
+let check_mark = "&#x2713;";
+let cross = "&#x2715;";
+let check_mark_span = `<span class="text-success">${check_mark}</span>`;
+let cross_span = `<span class="text-danger">${cross}</span>`;
+
+
+
 document.thingy = thingy;
 
 async function connect(device) {
@@ -22,10 +30,10 @@ async function connect(device) {
 		let error = await device.connect();
 
 		if (error) {
-			let message = '<span class="text-danger">&#x2715;</span> Connection failed';
+			let message = `${cross_span} connection failed`;
 
 			if (/User cancelled/.test(error.message)) {
-				message = '<span class="text-danger">&#x2715;</span> No';
+				message = `${cross_span} No`;
 			}
 
 			document.querySelector("#thingy-status-connected").innerHTML = message;
@@ -35,9 +43,9 @@ async function connect(device) {
 		thingy_connected = true;
 
 		document.querySelector("#thingy-status-connected").innerHTML =
-			'<span class="text-success">&#x2713;</span> Yes';
+			`${check_mark_span} Yes`;
 		document.querySelector("#thingy-status-battery").innerHTML =
-			'<span class="text-muted">Please wait</span>';
+			'<span class="text-muted">Please wait...</span>';
 		document.querySelector("#thingy-status-name").innerHTML = await device.getName();
 
 		await device.ledBreathe({color: 'red', intensity: 100, delay: 2000});
@@ -50,7 +58,7 @@ async function connect(device) {
 		return true;
 	} catch (err) {
 		document.querySelector("#thingy-status-connected").innerHTML =
-			'<span class="text-danger">&#x2715;</span> Connection failed';
+            `${cross_span} connection failed`;
 		console.log(err);
 		return false;
 	}
@@ -112,7 +120,7 @@ async function start_publishing(device) {
 				data: packet
 			});
 		}
-	}
+	};
 	do_publish();
 	setInterval(do_publish, 1000 * 60 * interval);
 
@@ -163,7 +171,7 @@ window.addEventListener('load', function () {
 });
 
 function countDown(i) {
-    var int = setInterval(function () {
+    let int = setInterval(function () {
         document.getElementById("publish-status-next-time").innerHTML = i + "s";
         i-- || clearInterval(int);  //if i is 0, then stop the interval
 	}, 1000);
