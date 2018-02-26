@@ -65,6 +65,18 @@ async function connect(device) {
 
 let publishing_interval = null;
 
+
+/*
+Dette funker ikke fordi man mister contexten til device, TODO: bør fikses
+async function enable_channel(packet, device, type, readout) {
+	await device.fun(function (data) {
+		packet = data.value;
+		document.querySelector(readout).innerHTML =
+			data.value + " " + data.unit;
+	}, true);
+}
+*/
+
 // Called when the user presses the publish button
 // Publishes the thingy data to IOTA marketplace at user specified interval using the imported publish function
 async function start_publishing(device) {
@@ -84,14 +96,14 @@ async function start_publishing(device) {
 
 	let packet = {};
 
-	// these if-statements fetches thingy data based on which channels are selected by the user
 	if (channels.temperature) {
-		await device.temperatureEnable(function(data) {
-			packet.temperature = data.value;
-			document.querySelector("#temperature-readout").innerHTML =
-				data.value + " " + data.unit;
-		}, true);
-	}
+        //enable_channel(packet.temperature, device, device.temperatureEnable, "#temperature-Readout"); }
+        await device.temperatureEnable(function (data) {
+            packet.temperature = data.value;
+            document.querySelector("#temperature-readout").innerHTML =
+                data.value + " " + data.unit;
+        }, true);
+    }
 	if (channels.pressure) {
 		await device.pressureEnable(function(data) {
 			packet.pressure = data.value.toString();
