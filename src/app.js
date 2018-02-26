@@ -7,15 +7,14 @@ let thingy_connected = false;
 let publishing = false;
 
 
-let check_mark = "&#x2713;";
-let cross = "&#x2715;";
-let check_mark_span = `<span class="text-success">${check_mark}</span>`;
-let cross_span = `<span class="text-danger">${cross}</span>`;
+let check_mark = "&#x2713;"; // check mark character
+let cross = "&#x2715;"; // cross character
+let check_mark_span = `<span class="text-success">${check_mark}</span>`; // HTML for checkmark
+let cross_span = `<span class="text-danger">${cross}</span>`; // HTML for cross (failed connection)
 
+document.thingy = thingy; // makes thingy available in document scope?
 
-
-document.thingy = thingy;
-
+// attempts to connect to a thingy device
 async function connect(device) {
 	try {
 		if (thingy_connected) {
@@ -66,6 +65,8 @@ async function connect(device) {
 
 let publishing_interval = null;
 
+// Called when the user presses the publish button
+// Publishes the thingy data to IOTA marketplace at user specified interval using the imported publish function
 async function start_publishing(device) {
 	let form = document.querySelector("#settings-form");
 	let interval = parseInt(form.querySelector("#send-interval").value);
@@ -83,6 +84,7 @@ async function start_publishing(device) {
 
 	let packet = {};
 
+	// these if-statements fetches thingy data based on which channels are selected by the user
 	if (channels.temperature) {
 		await device.temperatureEnable(function(data) {
 			packet.temperature = data.value;
@@ -112,6 +114,7 @@ async function start_publishing(device) {
 		}, true);
 	}
 
+	// Uses the publish function at selected interval to post data from thingy
 	let do_publish = async () => {
 		countDown(60*interval);
 		if (!(Object.keys(packet).length === 0 && packet.constructor === Object)){
@@ -128,6 +131,15 @@ async function start_publishing(device) {
 		"Idle";
 }
 
+// Counts seconds in the selected interval, updates html whith seconds remaining
+function countDown(i) {
+    let int = setInterval(function () {
+        document.getElementById("publish-status-next-time").innerHTML = i + "s";
+        i-- || clearInterval(int);  //if i is 0, then stop the interval
+	}, 1000);
+}
+
+// stops publishing to the IOTA marketplace, resets publishing status and countdown timer in HTML
 function stop_publishing() {
 	if (publishing_interval != null) {
 		clearInterval(publishing_interval);
@@ -139,12 +151,16 @@ function stop_publishing() {
 		'<span class="text-muted">Never</span>';
 }
 
+// Function run on page load
+// Sets event listeners to the connect and publish buttons
+// Runs connect(), start_publishing() and stop_publishing() if clicked
 window.addEventListener('load', function () {
 	document.querySelector("#connect").addEventListener("click", async () => {
 		await connect(thingy);
 	});
 
 	let toggle_publishing = document.querySelector("#toggle-publish");
+
 	toggle_publishing.addEventListener("click", async () => {
 		let form = document.querySelector("#settings-form");
 		let inputs = form.getElementsByTagName("input");
@@ -159,7 +175,6 @@ window.addEventListener('load', function () {
 			toggle_publishing.classList.add("btn-danger");
 			toggle_publishing.classList.remove("btn-success");
 			toggle_publishing.innerHTML = "Stop publishing";
-
 			start_publishing(thingy);
 		} else {
 			toggle_publishing.classList.add("btn-success");
@@ -170,10 +185,4 @@ window.addEventListener('load', function () {
 	})
 });
 
-function countDown(i) {
-    let int = setInterval(function () {
-        document.getElementById("publish-status-next-time").innerHTML = i + "s";
-        i-- || clearInterval(int);  //if i is 0, then stop the interval
-	}, 1000);
-}
 
