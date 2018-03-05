@@ -103,6 +103,7 @@ async function connect(device) {
 }
 
 let publishing_interval = null;
+let stop_publish_func = null;
 
 
 // Called when the user presses the publish button. Publishes the
@@ -113,6 +114,7 @@ async function start_publishing(device) {
 	let interval = parseInt(form.querySelector("#send-interval").value);
 
 	let packet = {};
+	let stop_functions = [];
 
 	for (let [name, options] of Object.entries(channels)) {
 		// Get the enable function for this channel
@@ -122,12 +124,17 @@ async function start_publishing(device) {
 		}
 		let enableChannel = device[`${sensor_channel}Enable`].bind(device);
 
-		await enableChannel(function(data) {
+		let update_function = function(data) {
 			if ('transform_data' in options) {
 				data = options.transform_data(data);
 			}
 			packet[name] = data.value.toString();
-		}, true);
+		}
+
+		await enableChannel(update_function, true);
+		stop_functions.push(async function() {
+			await enableChannel(update_function, false);
+		});
 	}
 
 	// Uses the publish function at selected interval to post data from thingy
@@ -141,36 +148,56 @@ async function start_publishing(device) {
 		}
 	};
 	do_publish();
-	setInterval(do_publish, 1000 * 60 * interval);
+	publishing_interval = setInterval(do_publish, 1000 * 60 * interval);
 
 	document.querySelector("#publish-status").innerHTML =
 		"Idle";
+
+	stop_publish_func = async function stop_publish() {
+		for (let func of stop_functions) {
+			await func();
+		}
+	}
 }
+
+let count_down_interval = null;
 
 // Counts seconds in the selected interval, updates html whith seconds remaining
 function countDown(i) {
-    let int = setInterval(function () {
+	stopCountDown();
+    count_down_interval = setInterval(function () {
         document.getElementById("publish-status-next-time").innerHTML = i + "s";
-        i-- || clearInterval(int);  //if i is 0, then stop the interval
+        i-- || clearInterval(count_down_interval);  //if i is 0, then stop the interval
 	}, 1000);
 }
 
+function stopCountDown() {
+	if (count_down_interval != null) {
+		clearInterval(count_down_interval);
+	}
+	document.querySelector("#publish-status-next-time").innerHTML =
+		'<span class="text-muted">Never</span>';
+}
+
 // stops publishing to the IOTA marketplace, resets publishing status and countdown timer in HTML
-function stop_publishing() {
+async function stop_publishing() {
 	if (publishing_interval != null) {
 		clearInterval(publishing_interval);
 	}
 
+	if (stop_publish_func != null) {
+		await stop_publish_func();
+	}
+	stopCountDown();
+
 	document.querySelector("#publish-status").innerHTML =
 		"Not publishing";
-	document.querySelector("#publish-status-next-time").innerHTML =
-		'<span class="text-muted">Never</span>';
 }
 
 // Function run on page load
 // Sets event listeners to the connect and publish buttons
 // Runs connect(), start_publishing() and stop_publishing() if clicked
-window.addEventListener('load', function () {
+window.addEventListener('load', async function () {
 	document.querySelector("#connect").addEventListener("click", async () => {
 		await connect(thingy);
 	});
@@ -191,12 +218,12 @@ window.addEventListener('load', function () {
 			toggle_publishing.classList.add("btn-danger");
 			toggle_publishing.classList.remove("btn-success");
 			toggle_publishing.innerHTML = "Stop publishing";
-			start_publishing(thingy);
+			await start_publishing(thingy);
 		} else {
 			toggle_publishing.classList.add("btn-success");
 			toggle_publishing.classList.remove("btn-danger");
 			toggle_publishing.innerHTML = "Start publishing";
-			stop_publishing();
+			await stop_publishing();
 		}
 	})
 });
