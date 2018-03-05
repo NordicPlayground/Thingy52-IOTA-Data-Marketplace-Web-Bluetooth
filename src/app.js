@@ -29,7 +29,7 @@ async function connect(device) {
 		let error = await device.connect();
 
 		if (error) {
-			let message = `${cross_span} connection failed`;
+			let message = `${cross_span} connection failed: ${error}`;
 
 			if (/User cancelled/.test(error.message)) {
 				message = `${cross_span} No`;
@@ -57,7 +57,7 @@ async function connect(device) {
 		return true;
 	} catch (err) {
 		document.querySelector("#thingy-status-connected").innerHTML =
-            `${cross_span} connection failed`;
+            `${cross_span} connection failed: ${err}`;
 		console.log(err);
 		return false;
 	}
@@ -66,63 +66,48 @@ async function connect(device) {
 let publishing_interval = null;
 
 
-/*
-Dette funker ikke fordi man mister contexten til device, TODO: bør fikses
-async function enable_channel(packet, device, type, readout) {
-	await device.fun(function (data) {
-		packet = data.value;
-		document.querySelector(readout).innerHTML =
-			data.value + " " + data.unit;
-	}, true);
-}
-*/
+// Dette funker ikke fordi man mister contexten til device, TODO: bør fikses
+// async function enable_channel(packet, type, fun, readout) {
+// 	await fun(function (data) {
+// 		packet = data.value;
+// 		document.querySelector(readout).innerHTML =
+// 			data.value + " " + data.unit;
+// 	}, true);
+// }
 
-// Called when the user presses the publish button
-// Publishes the thingy data to IOTA marketplace at user specified interval using the imported publish function
+// Called when the user presses the publish button. Publishes the
+// thingy data to IOTA marketplace at user specified interval using
+// the imported publish function
 async function start_publishing(device) {
 	let form = document.querySelector("#settings-form");
 	let interval = parseInt(form.querySelector("#send-interval").value);
-	let channels = {
-		'temperature': form.querySelector("#send-temperature").checked,
-		'pressure': form.querySelector("#send-pressure").checked,
-		'humidity': form.querySelector("#send-humidity").checked,
-		'gas': form.querySelector("#send-gas").checked,
-	};
-	interval = Math.max(interval, 1);
 
-	if (publishing_interval != null) {
-		clearInterval(publishing_interval);
-	}
+	let channels = {
+		'temperature': {},
+		'pressure': {},
+		'humidity': {},
+		'co2': {sensor_channel: 'gas', transform_data: data => data.eCO2},
+		'voc': {sensor_channel: 'gas', transform_data: data => data.TVOC},
+	};
 
 	let packet = {};
 
-	if (channels.temperature) {
-        //enable_channel(packet.temperature, device, device.temperatureEnable, "#temperature-Readout"); }
-        await device.temperatureEnable(function (data) {
-            packet.temperature = data.value;
-            document.querySelector("#temperature-readout").innerHTML =
-                data.value + " " + data.unit;
-        }, true);
-    }
-	if (channels.pressure) {
-		await device.pressureEnable(function(data) {
-			packet.pressure = data.value.toString();
-			document.querySelector("#pressure-readout").innerHTML =
+	for (let [name, options] of Object.entries(channels)) {
+		// Get the enable function for this channel
+		let sensor_channel = name;
+		if ('sensor_channel' in options) {
+			sensor_channel = options.sensor_channel;
+		}
+		let enableChannel = device[`${sensor_channel}Enable`].bind(device);
+
+		await enableChannel(function(data) {
+			console.log(data);
+			if ('transform_data' in options) {
+				data = options.transform_data(data);
+			}
+			packet[name] = data.value.toString();
+			document.querySelector(`#${name}-readout`).innerHTML =
 				data.value + " " + data.unit;
-		}, true);
-	}
-	if (channels.humidity) {
-		await device.humidityEnable(function(data) {
-			packet.humidity = data.value.toString();
-			document.querySelector("#humidity-readout").innerHTML =
-				data.value + " " + data.unit;
-		}, true);
-	}
-	if (channels.gas) {
-		await device.gasEnable(function(data) {
-			packet.co2 = data.eCO2.value.toString();
-			document.querySelector("#gas-readout").innerHTML =
-				data.eCO2.value + " " + data.eCO2.unit;
 		}, true);
 	}
 
