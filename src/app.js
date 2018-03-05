@@ -11,8 +11,17 @@ let check_mark = "&#x2713;"; // check mark character
 let cross = "&#x2715;"; // cross character
 let check_mark_span = `<span class="text-success">${check_mark}</span>`; // HTML for checkmark
 let cross_span = `<span class="text-danger">${cross}</span>`; // HTML for cross (failed connection)
+let please_wait_message = '<span class="text-muted">Please wait...</span>';
 
 document.thingy = thingy; // makes thingy available in document scope?
+
+let channels = {
+	'temperature': {},
+	'pressure': {},
+	'humidity': {},
+	'co2': {sensor_channel: 'gas', transform_data: data => data.eCO2},
+	'voc': {sensor_channel: 'gas', transform_data: data => data.TVOC},
+};
 
 // attempts to connect to a thingy device
 async function connect(device) {
@@ -44,7 +53,7 @@ async function connect(device) {
 		document.querySelector("#thingy-status-connected").innerHTML =
 			`${check_mark_span} Yes`;
 		document.querySelector("#thingy-status-battery").innerHTML =
-			'<span class="text-muted">Please wait...</span>';
+			please_wait_message;
 		document.querySelector("#thingy-status-name").innerHTML = await device.getName();
 
 		await device.ledBreathe({color: 'red', intensity: 100, delay: 2000});
@@ -53,27 +62,48 @@ async function connect(device) {
 			document.querySelector("#thingy-status-battery").innerHTML =
 				data.value + " " + data.unit;
 		}, true);
-
-		return true;
 	} catch (err) {
 		document.querySelector("#thingy-status-connected").innerHTML =
             `${cross_span} connection failed: ${err}`;
 		console.log(err);
 		return false;
 	}
+
+	for (let [name, options] of Object.entries(channels)) {
+		let checkbox = document.querySelector(`#send-${name}`);
+		let sensor_channel = name;
+
+		if ('sensor_channel' in options) {
+			sensor_channel = options.sensor_channel;
+		}
+
+		let update_element = function(data) {
+			if ('transform_data' in options) {
+				data = options.transform_data(data);
+			}
+			document.querySelector(`#${name}-readout`).innerHTML =
+				data.value + " " + data.unit;
+		};
+
+		let enableChannel = device[`${sensor_channel}Enable`].bind(device);
+
+		checkbox.addEventListener('click', async function() {
+			if (checkbox.checked) {
+				document.querySelector(`#${name}-readout`).innerHTML =
+					please_wait_message;
+				await enableChannel(update_element, true);
+			} else {
+				await enableChannel(update_element, false);
+				document.querySelector(`#${name}-readout`).innerHTML = '';
+			}
+		});
+	}
+
+	return true;
 }
 
 let publishing_interval = null;
 
-
-// Dette funker ikke fordi man mister contexten til device, TODO: bør fikses
-// async function enable_channel(packet, type, fun, readout) {
-// 	await fun(function (data) {
-// 		packet = data.value;
-// 		document.querySelector(readout).innerHTML =
-// 			data.value + " " + data.unit;
-// 	}, true);
-// }
 
 // Called when the user presses the publish button. Publishes the
 // thingy data to IOTA marketplace at user specified interval using
@@ -81,14 +111,6 @@ let publishing_interval = null;
 async function start_publishing(device) {
 	let form = document.querySelector("#settings-form");
 	let interval = parseInt(form.querySelector("#send-interval").value);
-
-	let channels = {
-		'temperature': {},
-		'pressure': {},
-		'humidity': {},
-		'co2': {sensor_channel: 'gas', transform_data: data => data.eCO2},
-		'voc': {sensor_channel: 'gas', transform_data: data => data.TVOC},
-	};
 
 	let packet = {};
 
@@ -101,13 +123,10 @@ async function start_publishing(device) {
 		let enableChannel = device[`${sensor_channel}Enable`].bind(device);
 
 		await enableChannel(function(data) {
-			console.log(data);
 			if ('transform_data' in options) {
 				data = options.transform_data(data);
 			}
 			packet[name] = data.value.toString();
-			document.querySelector(`#${name}-readout`).innerHTML =
-				data.value + " " + data.unit;
 		}, true);
 	}
 
