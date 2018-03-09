@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+		<title>IOTA Thingy</title>
+		<link type="text/css" rel="stylesheet" href="/css/bootstrap.min.css">
+		<script type="module" src="bundle.js"></script>
+	</head>
+	<body>
+		<div class="container">
+
+			<h1>IOTA Thingy-data publisher</h1>
+
+			<section>
+				<h2>Thingy</h2>
+
+				<div class="row">
+					<div class="col-md-4">
+						<table class="new_table">
+							<tr>
+								<th>Connected</th>
+								<td id="thingy-status-connected"><span class="text-danger">&#x2715;</span> No</td>
+							</tr>
+
+							<tr>
+								<th>Name</th>
+								<td id="thingy-status-name"><span class="text-muted">n/a</span></td>
+							</tr>
+
+							<tr>
+								<th>Battery</th>
+								<td id="thingy-status-battery"><span class="text-muted">n/a</span></td>
+							</tr>
+						</table>
+					</div>
+				</div>
+				<button id="connect" class="btn btn-success">Connect</button>
+			</section>
+
+			<section>
+				<h2>Settings</h2>
+
+				<div class="row">
+					<div class="col-md-4">
+						<table class="table table-sm">
+							<tr>
+								<th>Status</th>
+								<td id="publish-status">Not publishing</td>
+							</tr>
+							<tr>
+								<th>Next publish</th>
+								<td id="publish-status-next-time"><span class="text-muted">Never</span></td>
+							</tr>
+						</table>
+					</div>
+				</div>
+
+				<form id="settings-form">
+					<div class="row">
+						<div class="form-group col-md-4">
+							<label class="lead">How often should the data be published</label>
+							<div class="input-group input-group-lg">
+								<div class="input-group-prepend">
+									<span class="input-group-text">Every</span>
+								</div>
+								<input class="form-control" type="number" name="send_interval" id="send-interval" value="10">
+								<div class="input-group-append">
+									<span class="input-group-text">minutes</span>
+								</div>
+							</div>
+						</div>
+					</div>
+
+					<div class="form-group">
+						<label class="lead">Select what sensor data should be published</label>
+
+						<div class="form-check">
+							<input class="form-check-input" type="checkbox" id="send-temperature" name="send_temperature">
+							<label class="form-check-label" for="send-temperature">Temperature</label>
+							<span id="temperature-readout"></span>
+						</div>
+
+						<div class="form-check">
+							<input  class="form-check-input" type="checkbox" id="send-pressure" name="send_pressure">
+							<label class="form-check-label" for="send-pressure">Pressure</label>
+							<span id="pressure-readout"></span>
+						</div>
+
+						<div class="form-check">
+							<input class="form-check-input" type="checkbox" id="send-humidity" name="send_humidity">
+							<label class="form-check-label" for="send-humidity">Humidity</label>
+							<span id="humidity-readout"></span>
+						</div>
+
+						<div class="form-check">
+							<input class="form-check-input" type="checkbox" id="send-co2" name="send_co2">
+							<label class="form-check-label" for="send-co2">CO2</label>
+							<span id="co2-readout"></span>
+						</div>
+
+						<div class="form-check">
+							<input class="form-check-input" type="checkbox" id="send-voc" name="send_voc">
+							<label class="form-check-label" for="send-voc">VOC</label>
+							<span id="voc-readout"></span>
+						</div>
+					</div>
+
+					<div class="form-group">
+					</div>
+				</form>
+
+				<button id="toggle-publish" class="btn btn-success">Start publishing</button>
+
+			</section>
+
+		</div>
+	</body>
+</html>

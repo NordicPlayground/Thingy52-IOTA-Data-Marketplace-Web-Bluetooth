@@ -1,0 +1,52 @@
+
+
+/* Table */
+
+.new_table{
+    width: 70%;
+}
+th{
+    font-weight: normal;
+}
+td{
+    padding: 5px;
+}
+
+/* Cards */
+.w3-card-4, .w3-card{
+    box-shadow: 0 1px 3px 0 rgba(0,0,0,0.16);
+}
+/* align "Status" and "Next publish" */
+.flex-box{
+    display: flex;
+}
+/* vertical border between "Status" and "Next publish"*/
+#next_publish{
+    border-left: 1px solid rgba(0, 0, 0, .1);
+}
+/* buttons */
+
+.btn-success{
+    background-color: #249DD6 !important;
+    border-color: #249DD6 !important;
+}
+.btn-success:hover{
+    background-color: #50B5E6 !important;
+    border-color: #50B5E6 !important;
+}
+
+.btn-success:focus {
+    box-shadow: 0 0 0 0.2rem rgba(80,181,230, .5) !important;
+
+}
+
+
+/* footer */
+.w3-text-teal, .w3-hover-text-teal:hover{
+    color: #249DD6 !important;
+}
+.w3-teal, .w3-hover-teal:hover {
+    background-color: #249DD6 !important;
+    width: 100%;
+    height: 100px;
+}

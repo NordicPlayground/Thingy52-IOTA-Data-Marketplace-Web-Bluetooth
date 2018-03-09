@@ -15,12 +15,10 @@
 	<script type="module" src="bundle.js"></script>
 </head>
 
+
 <body class="w3-light-grey">
 
 <!-- Page Container -->
-<!-- to get same size boxes: <div class="w3-content w3-margin-top" style="max-width:35%;">
- -->
-
 <div class="w3-content w3-margin-top" style="max-width:1400px;">
 
 	<!-- The Grid -->
@@ -36,29 +34,9 @@
 				<br>
 				<div class="w3-container">
 
-					<table class="new_table">
-						<tr>
-							<th><i class="fa fa-bluetooth-b fa-fw w3-margin-right w3-large w3-text-teal"></i>Connected</th>
-							<td id="thingy-status-connected"><span class="text-danger">&#x2715;</span> No</td>
-						</tr>
-
-						<tr>
-							<th><i class="fa fa-tag fa-fw w3-margin-right w3-large w3-text-teal"></i>Name</th>
-							<td id="thingy-status-name"><span class="text-muted">n/a</span></td>
-						</tr>
-
-						<tr>
-							<th><i class="fa fa-battery-half fa-fw w3-margin-right w3-large w3-text-teal"></i>Battery</th>
-							<td id="thingy-status-battery"><span class="text-muted">n/a</span></td>
-						</tr>
-					</table>
-					<!--
-
 					<p><i class="fa fa-bluetooth-b fa-fw w3-margin-right w3-large w3-text-teal"></i>Connected<span id="thingy-status-connected"><span class="text-danger">&#x2715;</span> No</span></p>
 					<p><i class="fa fa-tag fa-fw w3-margin-right w3-large w3-text-teal"></i>Name<span id="thingy-status-name"><span class="text-muted">n/a</span></span></p>
 					<p><i class="fa fa-battery-half fa-fw w3-margin-right w3-large w3-text-teal"></i>Battery<span id="thingy-status-battery"><span class="text-muted">n/a</span></span></p>
-
-					-->
 					<hr>
 
 					<p class="w3-large w3-text-theme"><b><button id="connect" class="btn btn-success">Connect</button>
@@ -75,37 +53,36 @@
 
 			<div class="w3-container w3-card w3-white w3-margin-bottom">
 				<h2 class="w3-text-grey w3-padding-16"><i class="fa fa-cogs fa-fw w3-margin-right w3-xxlarge w3-text-teal"></i>Settings</h2>
-
-				<div class = "flex-box">
 				<div class="w3-container">
 					<h5 class="w3-opacity"><b>Status</b></h5>
 					<p id="publish-status">Not publishing</p>
+					<hr>
 				</div>
-				<div class="w3-container" id="next_publish">
+				<div class="w3-container">
 					<h5 class="w3-opacity"><b>Next publish</b></h5>
 					<p id="publish-status-next-time"><span class="text-muted">Never</span> </p>
-
+					<hr>
 				</div>
-				</div>
 
-				<hr>
+
+
 
 				<div class="w3-container">
 					<form id="settings-form">
-					<h5 class="w3-opacity"><b>How often should the data be published? </b></h5>
+						<h5 class="w3-opacity"><b>How often should the data be published? </b></h5>
 
 
-					<div class="input-group input-group-lg">
-						<div class="input-group-prepend">
-							<span class="input-group-text">Every</span>
+						<div class="input-group input-group-lg">
+							<div class="input-group-prepend">
+								<span class="input-group-text">Every</span>
+							</div>
+							<input class="form-control" type="number" name="send_interval" id="send-interval" value="10">
+							<div class="input-group-append">
+								<span class="input-group-text">minutes</span>
+							</div>
+							<hr>
+
 						</div>
-						<input class="form-control" type="number" name="send_interval" id="send-interval" value="10">
-						<div class="input-group-append">
-							<span class="input-group-text">minutes</span>
-						</div>
-					</div>
-
-						<hr>
 
 						<h5 class="w3-opacity"><b><label class="lead">Select what sensor data should be published</label></b></h5>
 						<div class="form-group">
@@ -143,28 +120,25 @@
 						</div>
 					</form>
 
-					<hr>
-
-					<p class="w3-large w3-text-theme"><b><button id="toggle-publish" class="btn btn-success">Start publishing</button>
-					</b></p>
 					<br>
+					<button id="toggle-publish" class="btn btn-success">Start publishing</button>
 
 
-					</div>
-
+					<hr>
 				</div>
+
 			</div>
-
-
-			<!-- End Right Column -->
 		</div>
 
-		<!-- End Grid -->
+
+		<!-- End Right Column -->
 	</div>
 
-	<!-- End Page Container -->
+	<!-- End Grid -->
 </div>
 
+<!-- End Page Container -->
+</div>
 
 <footer class="w3-container w3-teal w3-center w3-margin-top">
 	<p>Nordic Semiconductor</p>
