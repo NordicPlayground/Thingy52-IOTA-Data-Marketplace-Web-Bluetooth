@@ -7,7 +7,7 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "concurrently --kill-others \"npm run-script webpack\" \"npm run-script webserver\"",
     "webpack": "webpack -d --watch",
-    "webserver": "http-server . -a 127.0.0.1 -p 8000"
+    "webserver": "http-server . -a 0.0.0.0 -p 8000"
   },
   "author": "",
   "license": "ISC",
