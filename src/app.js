@@ -55,8 +55,10 @@ async function connect(device) {
 		document.querySelector("#thingy-status-battery").innerHTML =
 			please_wait_message;
 		document.querySelector("#thingy-status-name").innerHTML = await device.getName();
+		document.querySelector("#toggle-publish").classList.remove("disabled")
+        document.querySelector("#toggle-publish").classList.add("active")
 
-		await device.ledBreathe({color: 'red', intensity: 100, delay: 2000});
+        await device.ledBreathe({color: 'red', intensity: 100, delay: 2000});
 
 		await device.batteryLevelEnable(function(data) {
 			document.querySelector("#thingy-status-battery").innerHTML =
@@ -110,53 +112,60 @@ let stop_publish_func = null;
 // thingy data to IOTA marketplace at user specified interval using
 // the imported publish function
 async function start_publishing(device) {
-	let form = document.querySelector("#settings-form");
-	let interval = parseInt(form.querySelector("#send-interval").value);
 
-	let packet = {};
-	let stop_functions = [];
+	if (thingy_connected){
 
-	for (let [name, options] of Object.entries(channels)) {
-		// Get the enable function for this channel
-		let sensor_channel = name;
-		if ('sensor_channel' in options) {
-			sensor_channel = options.sensor_channel;
-		}
-		let enableChannel = device[`${sensor_channel}Enable`].bind(device);
+        let form = document.querySelector("#settings-form");
+        let interval = parseInt(form.querySelector("#send-interval").value);
 
-		let update_function = function(data) {
-			if ('transform_data' in options) {
-				data = options.transform_data(data);
-			}
-			packet[name] = data.value.toString();
-		}
+        let packet = {};
+        let stop_functions = [];
 
-		await enableChannel(update_function, true);
-		stop_functions.push(async function() {
-			await enableChannel(update_function, false);
-		});
-	}
+        for (let [name, options] of Object.entries(channels)) {
+            // Get the enable function for this channel
+            let sensor_channel = name;
+            if ('sensor_channel' in options) {
+                sensor_channel = options.sensor_channel;
+            }
+            let enableChannel = device[`${sensor_channel}Enable`].bind(device);
 
-	// Uses the publish function at selected interval to post data from thingy
-	let do_publish = async () => {
-		countDown(60*interval);
-		if (!(Object.keys(packet).length === 0 && packet.constructor === Object)){
-			await publish({
-				time: Date.now(),
-				data: packet
-			});
-		}
-	};
-	do_publish();
-	publishing_interval = setInterval(do_publish, 1000 * 60 * interval);
+            let update_function = function(data) {
+                if ('transform_data' in options) {
+                    data = options.transform_data(data);
+                }
+                packet[name] = data.value.toString();
+            }
 
-	document.querySelector("#publish-status").innerHTML =
-		"Idle";
+            await enableChannel(update_function, true);
+            stop_functions.push(async function() {
+                await enableChannel(update_function, false);
+            });
+        }
 
-	stop_publish_func = async function stop_publish() {
-		for (let func of stop_functions) {
-			await func();
-		}
+        // Uses the publish function at selected interval to post data from thingy
+        let do_publish = async () => {
+            countDown(60*interval);
+            if (!(Object.keys(packet).length === 0 && packet.constructor === Object)){
+                await publish({
+                    time: Date.now(),
+                    data: packet
+                });
+            }
+        };
+        do_publish();
+        publishing_interval = setInterval(do_publish, 1000 * 60 * interval);
+
+        document.querySelector("#publish-status").innerHTML =
+            "Idle";
+
+        stop_publish_func = async function stop_publish() {
+            for (let func of stop_functions) {
+                await func();
+            }
+        }
+
+	}else{
+		console.log("Not connected to the Thingy");
 	}
 }
 
@@ -203,6 +212,8 @@ window.addEventListener('load', async function () {
 	});
 
 	let toggle_publishing = document.querySelector("#toggle-publish");
+
+
 
 	toggle_publishing.addEventListener("click", async () => {
 		let form = document.querySelector("#settings-form");
