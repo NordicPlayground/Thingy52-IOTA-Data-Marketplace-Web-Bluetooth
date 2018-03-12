@@ -225,17 +225,20 @@ window.addEventListener('load', async function () {
 			input.disabled = publishing;
 		}
 
-		if (publishing) {
-			toggle_publishing.classList.add("btn-danger");
-			toggle_publishing.classList.remove("btn-success");
-			toggle_publishing.innerHTML = "Stop publishing";
-			await start_publishing(thingy);
-		} else {
-			toggle_publishing.classList.add("btn-success");
-			toggle_publishing.classList.remove("btn-danger");
-			toggle_publishing.innerHTML = "Start publishing";
-			await stop_publishing();
-		}
+    	if (toggle_publishing.classList.contains("active")){
+			if (publishing) {
+				toggle_publishing.classList.add("btn-danger");
+				toggle_publishing.classList.remove("btn-success");
+				toggle_publishing.innerHTML = "Stop publishing";
+				await start_publishing(thingy);
+			} else {
+				toggle_publishing.classList.add("btn-success");
+				toggle_publishing.classList.remove("btn-danger");
+				toggle_publishing.innerHTML = "Start publishing";
+				await stop_publishing();
+			}
+        }
+
 	})
 });
 
