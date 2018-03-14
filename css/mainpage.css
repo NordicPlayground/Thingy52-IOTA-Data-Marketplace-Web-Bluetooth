@@ -26,6 +26,9 @@ td{
     border-left: 1px solid rgba(0, 0, 0, .1);
 }
 /* buttons */
+.btn.disabled{
+    cursor: not-allowed;
+}
 
 .btn-success{
     background-color: #249DD6 !important;
@@ -78,9 +81,6 @@ td{
         display: flex;
         justify-content: center;
     }
-    */
-
-
-
 
 }
+*/

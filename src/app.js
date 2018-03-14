@@ -43,12 +43,17 @@ async function connect(device) {
 			if (/User cancelled/.test(error.message)) {
 				message = `${cross_span} No`;
 			}
-
 			document.querySelector("#thingy-status-connected").innerHTML = message;
 			console.log(error);
 			return false;
 		}
 		thingy_connected = true;
+
+        let form = document.querySelector("#settings-form");
+        let inputs = form.getElementsByTagName("input");
+        for (let input of inputs) {
+            input.disabled = publishing;
+        }
 
 		document.querySelector("#thingy-status-connected").innerHTML =
 			`${check_mark_span} Yes`;
@@ -73,6 +78,7 @@ async function connect(device) {
 
 	for (let [name, options] of Object.entries(channels)) {
 		let checkbox = document.querySelector(`#send-${name}`);
+
 		let sensor_channel = name;
 
 		if ('sensor_channel' in options) {
@@ -211,21 +217,23 @@ window.addEventListener('load', async function () {
 		await connect(thingy);
 	});
 
+    //let newCheckbox = document.querySelector(`#send-${name}`);
+    //console.log(document.querySelector(`#send-${name}`));
+    //newCheckbox.disabled = true;
+
 	let toggle_publishing = document.querySelector("#toggle-publish");
-
-
 
 	toggle_publishing.addEventListener("click", async () => {
 		let form = document.querySelector("#settings-form");
 		let inputs = form.getElementsByTagName("input");
 
+
+    if (thingy_connected){
 		publishing = !publishing;
 
 		for (let input of inputs) {
 			input.disabled = publishing;
 		}
-
-    	if (toggle_publishing.classList.contains("active")){
 			if (publishing) {
 				toggle_publishing.classList.add("btn-danger");
 				toggle_publishing.classList.remove("btn-success");
@@ -238,8 +246,5 @@ window.addEventListener('load', async function () {
 				await stop_publishing();
 			}
         }
-
 	})
 });
-
-
