@@ -1,4 +1,7 @@
- 
+/* Smaller "how often should data be published?"*/
+.input-group{
+    width: 70%;
+}
 
 /* Table */
 
@@ -17,6 +20,14 @@ td{
 .w3-card-4, .w3-card{
     box-shadow: 0 1px 3px 0 rgba(0,0,0,0.16);
 }
+/* Smaller right-card. Also smaller "how often should data be published?"
+.w3-twothird{
+    width: 500px;
+
+}
+*/
+
+
 /* align "Status" and "Next publish" */
 .flex-box{
     display: flex;

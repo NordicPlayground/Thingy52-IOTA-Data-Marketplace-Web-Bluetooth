@@ -55,7 +55,14 @@ async function connect(device) {
             input.disabled = publishing;
         }
 
-		document.querySelector("#thingy-status-connected").innerHTML =
+        //change button color and text when connected
+        let toggle_connect = document.querySelector("#connect");
+        toggle_connect.innerHTML = "Disconnect";
+        toggle_connect.classList.add("btn-danger");
+        toggle_connect.classList.remove("btn-success");
+
+
+        document.querySelector("#thingy-status-connected").innerHTML =
 			`${check_mark_span} Yes`;
 		document.querySelector("#thingy-status-battery").innerHTML =
 			please_wait_message;
@@ -212,6 +219,8 @@ async function stop_publishing() {
 // Function run on page load
 // Sets event listeners to the connect and publish buttons
 // Runs connect(), start_publishing() and stop_publishing() if clicked
+
+
 window.addEventListener('load', async function () {
 	document.querySelector("#connect").addEventListener("click", async () => {
 		await connect(thingy);
@@ -222,6 +231,17 @@ window.addEventListener('load', async function () {
     //newCheckbox.disabled = true;
 
 	let toggle_publishing = document.querySelector("#toggle-publish");
+	let toggle_connect = document.querySelector("#connect");
+
+	toggle_connect.addEventListener("click", async() =>{
+		if (!thingy_connected){
+            toggle_connect.innerHTML = "Connect";
+            toggle_connect.classList.add("btn-success");
+            toggle_connect.classList.remove("btn-danger");
+		}
+
+	});
+
 
 	toggle_publishing.addEventListener("click", async () => {
 		let form = document.querySelector("#settings-form");
