@@ -238,8 +238,15 @@ window.addEventListener('load', async function () {
             toggle_connect.innerHTML = "Connect";
             toggle_connect.classList.add("btn-success");
             toggle_connect.classList.remove("btn-danger");
-		}
+            toggle_publishing.classList.remove("active");
+            toggle_publishing.classList.add("disabled");
 
+            let form = document.querySelector("#settings-form");
+			let inputs = form.getElementsByTagName("input");
+			for (let input of inputs) {
+				input.disabled = true;
+			}
+		}
 	});
 
 
