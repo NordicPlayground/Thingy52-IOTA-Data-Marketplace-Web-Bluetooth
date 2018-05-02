@@ -35,6 +35,11 @@ td{
 /* vertical border between "Status" and "Next publish"*/
 #next_publish{
     border-left: 1px solid rgba(0, 0, 0, .1);
+    border-right: 1px solid rgba(0, 0, 0, .1);
+}
+#uuid_cont{
+    border-right: 1px solid rgba(0, 0, 0, .1);
+
 }
 /* buttons */
 .btn.disabled{
