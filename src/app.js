@@ -182,7 +182,9 @@ async function start_publishing(device) {
                     await publish({
                         time: Date.now(),
                         data: packet
-                    });
+                    }, document.querrySelector('#uuid'),
+						document.querrySelector('#sectetKey')
+						);
                 }
             };
             do_publish();

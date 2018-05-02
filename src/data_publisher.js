@@ -6,8 +6,8 @@ let Mam;
 
 // Set Varibles
 var debug = false; // Set to 'false' to publish data live
-let uuid = 'thingy-02'; // Your device ID is here.
-let secretKey = 'T9XKPHUAMYBIPVC'; // Your device's secret key here
+//let uuid = 'thingy-02'; // Your device ID is here.
+//let secretKey = 'T9XKPHUAMYBIPVC'; // Your device's secret key here
 
 // API end point
 let endpoint = 'https://api.marketplace.tangle.works/newData'
@@ -36,7 +36,7 @@ function init_mam() {
 }
 
 // Publish to tangle
-export const publish = async packet => {
+export const publish = async (packet,uuid,secretKey) => {
 	if (!mam_initialized) {
 		init_mam();
 	}
@@ -63,7 +63,7 @@ export const publish = async packet => {
 }
 
 // Push keys to market place.
-const pushKeys = async (root, sidekey) => {
+const pushKeys = async (root, sidekey, uuid, secretKey) => {
 	const packet = {
 		sidekey: sidekey,
 		root: root,
