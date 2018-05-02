@@ -5,6 +5,7 @@ let thingy = new Thingy({logEnabled: true});
 let thingy_connected = false;
 
 let publishing = false;
+let sensor_array = [];
 
 
 let check_mark = "&#x2713;"; // check mark character
@@ -104,12 +105,19 @@ async function connect(device) {
 
 		checkbox.addEventListener('click', async function() {
 			if (checkbox.checked) {
+				console.log("Sjekket av" + checkbox.id);
 				document.querySelector(`#${name}-readout`).innerHTML =
 					please_wait_message;
 				await enableChannel(update_element, true);
+				if (!sensor_array.includes(checkbox.id)){
+                    sensor_array.push(checkbox.id);
+                }
 			} else {
 				await enableChannel(update_element, false);
 				document.querySelector(`#${name}-readout`).innerHTML = '';
+                if (sensor_array.includes(checkbox.id)){
+                    remove(sensor_array, checkbox.id);
+                }
 			}
 		});
 	}
@@ -120,13 +128,21 @@ async function connect(device) {
 let publishing_interval = null;
 let stop_publish_func = null;
 
+function remove(array, element) {
+    const index = array.indexOf(element);
+    array.splice(index, 1);
+}
 
 // Called when the user presses the publish button. Publishes the
 // thingy data to IOTA marketplace at user specified interval using
 // the imported publish function
 async function start_publishing(device) {
+    var i;
+    for (i = 0; i<sensor_array.length; i++){
+        sensor_array[i] = sensor_array[i].replace('send-', '');
+    }
 
-	if (thingy_connected){
+    if (thingy_connected){
 
         let form = document.querySelector("#settings-form");
         let interval = parseInt(form.querySelector("#send-interval").value);
@@ -134,48 +150,53 @@ async function start_publishing(device) {
         let packet = {};
         let stop_functions = [];
 
+
         for (let [name, options] of Object.entries(channels)) {
-            // Get the enable function for this channel
-            let sensor_channel = name;
-            if ('sensor_channel' in options) {
-                sensor_channel = options.sensor_channel;
-            }
-            let enableChannel = device[`${sensor_channel}Enable`].bind(device);
+        	//console.log("Name is: " + name);
+        	if (sensor_array.includes(name)){
 
-            let update_function = function(data) {
-                if ('transform_data' in options) {
-                    data = options.transform_data(data);
+                let sensor_channel = name;
+                if ('sensor_channel' in options) {
+                    sensor_channel = options.sensor_channel;
                 }
-                packet[name] = data.value.toString();
-            }
+                let enableChannel = device[`${sensor_channel}Enable`].bind(device);
 
-            await enableChannel(update_function, true);
-            stop_functions.push(async function() {
-                await enableChannel(update_function, false);
-            });
-        }
-
-        // Uses the publish function at selected interval to post data from thingy
-        let do_publish = async () => {
-            countDown(60*interval);
-            if (!(Object.keys(packet).length === 0 && packet.constructor === Object)){
-                await publish({
-                    time: Date.now(),
-                    data: packet
+                let update_function = function(data) {
+                    if ('transform_data' in options) {
+                        data = options.transform_data(data);
+                    }
+                    packet[name] = data.value.toString();
+                }
+                await enableChannel(update_function, true);
+                stop_functions.push(async function() {
+                    await enableChannel(update_function, false);
                 });
-            }
-        };
-        do_publish();
-        publishing_interval = setInterval(do_publish, 1000 * 60 * interval);
 
-        document.querySelector("#publish-status").innerHTML =
-            "Idle";
-
-        stop_publish_func = async function stop_publish() {
-            for (let func of stop_functions) {
-                await func();
+			}
             }
-        }
+
+            // Uses the publish function at selected interval to post data from thingy
+            let do_publish = async () => {
+                countDown(60*interval);
+                if (!(Object.keys(packet).length === 0 && packet.constructor === Object)){
+                    await publish({
+                        time: Date.now(),
+                        data: packet
+                    });
+                }
+            };
+            do_publish();
+
+            publishing_interval = setInterval(do_publish, 1000 * 60 * interval);
+
+            document.querySelector("#publish-status").innerHTML =
+                "Idle";
+
+            stop_publish_func = async function stop_publish() {
+                for (let func of stop_functions) {
+                    await func();
+                }
+            }
 
 	}else{
 		console.log("Not connected to the Thingy");
@@ -184,7 +205,7 @@ async function start_publishing(device) {
 
 let count_down_interval = null;
 
-// Counts seconds in the selected interval, updates html whith seconds remaining
+// Counts seconds in the selected interval, updates html with seconds remaining
 function countDown(i) {
 	stopCountDown();
     count_down_interval = setInterval(function () {
@@ -201,9 +222,23 @@ function stopCountDown() {
 		'<span class="text-muted">Never</span>';
 }
 
+
+
 // stops publishing to the IOTA marketplace, resets publishing status and countdown timer in HTML
 async function stop_publishing() {
-	if (publishing_interval != null) {
+
+	// Remove sensor data
+    for (let [name, options] of Object.entries(channels)) {
+        document.querySelector(`#${name}-readout`).innerHTML = '';
+    }
+
+	// Uncheck all boxes
+    for (let [name, options] of Object.entries(channels)) {
+        let checkbox = document.querySelector(`#send-${name}`);
+        checkbox.checked = false;
+    }
+
+    if (publishing_interval != null) {
 		clearInterval(publishing_interval);
 	}
 
@@ -214,6 +249,8 @@ async function stop_publishing() {
 
 	document.querySelector("#publish-status").innerHTML =
 		"Not publishing";
+
+	sensor_array = [];
 }
 
 // Function run on page load
