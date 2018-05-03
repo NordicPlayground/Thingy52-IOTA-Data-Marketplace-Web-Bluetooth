@@ -146,6 +146,8 @@ async function start_publishing(device) {
 
         let form = document.querySelector("#settings-form");
         let interval = parseInt(form.querySelector("#send-interval").value);
+		let idmp_uuid = document.querySelector('#idmp_uuid').value;
+		let idmp_secretKey = document.querySelector('#idmp_secretKey').value;
 
         let packet = {};
         let stop_functions = [];
@@ -178,16 +180,17 @@ async function start_publishing(device) {
             // Uses the publish function at selected interval to post data from thingy
             let do_publish = async () => {
                 countDown(60*interval);
+				console.log("publishing", packet);
+				console.log("publishing", Object.keys(packet).length);
+
                 if (!(Object.keys(packet).length === 0 && packet.constructor === Object)){
-                    await publish({
-                        time: Date.now(),
-                        data: packet
-                    }, document.querrySelector('#uuid'),
-						document.querrySelector('#sectetKey')
-						);
+					await publish({
+						time: Date.now(),
+						data: packet
+					}, idmp_uuid, idmp_secretKey);
                 }
             };
-            do_publish();
+			setTimeout(do_publish, 3000);
 
             publishing_interval = setInterval(do_publish, 1000 * 60 * interval);
 

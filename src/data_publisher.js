@@ -37,6 +37,7 @@ function init_mam() {
 
 // Publish to tangle
 export const publish = async (packet,uuid,secretKey) => {
+	console.log("Publishing", packet, uuid, secretKey);
 	if (!mam_initialized) {
 		init_mam();
 	}
@@ -45,17 +46,20 @@ export const publish = async (packet,uuid,secretKey) => {
 	// Create Trytes
 	var trytes = iota.utils.toTrytes(JSON.stringify(packet))
 	// Get MAM payload
+	console.log('Encrypting')
 	var message = Mam.create(mamState, trytes)
 	// Save new mamState
 	mamState = message.state
 	// Attach the payload.
+	console.log('Attaching to tangle')
 	await Mam.attach(message.payload, message.address)
 	console.log('Attached Message')
 	console.log(packet, message.address, mamKey);
 
 	if (!debug) {
 		// Push the MAM root to the demo DB
-		let pushToDemo = await pushKeys(message.root, mamKey)
+		console.log('Sending to IDMP')
+		let pushToDemo = await pushKeys(message.root, mamKey, uuid, secretKey)
 		console.log(pushToDemo)
 		// Change MAM key on each loop
 		mamKey = keyGen(81)
