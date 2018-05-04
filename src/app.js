@@ -169,6 +169,7 @@ async function start_publishing(device) {
                         data = options.transform_data(data);
                     }
                     packet[name] = data.value.toString();
+                    appendPacket(packet);
                 };
                 await enableChannel(update_function, true);
                 stop_functions.push(async function() {
@@ -177,8 +178,6 @@ async function start_publishing(device) {
 
 			}
         	}
-
-		appendPacket(packet);
 
             // Uses the publish function at selected interval to post data from thingy
             let do_publish = async () => {

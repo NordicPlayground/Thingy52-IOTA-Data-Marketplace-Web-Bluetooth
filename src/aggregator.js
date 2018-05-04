@@ -6,7 +6,7 @@ let packets = [];
 
 export const appendPacket = (packet) => {
     packets.push(packet);
-    console.log(packets);
+    console.log("Aggregator packets: " + packets);
 }
 
 function get() {
