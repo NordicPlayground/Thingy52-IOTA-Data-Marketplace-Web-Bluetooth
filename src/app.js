@@ -5,6 +5,7 @@ let thingy = new Thingy({logEnabled: true});
 let thingy_connected = false;
 
 let publishing = false;
+let sensor_array = [];
 
 
 let check_mark = "&#x2713;"; // check mark character
@@ -43,20 +44,34 @@ async function connect(device) {
 			if (/User cancelled/.test(error.message)) {
 				message = `${cross_span} No`;
 			}
-
 			document.querySelector("#thingy-status-connected").innerHTML = message;
 			console.log(error);
 			return false;
 		}
 		thingy_connected = true;
 
-		document.querySelector("#thingy-status-connected").innerHTML =
+        let form = document.querySelector("#settings-form");
+        let inputs = form.getElementsByTagName("input");
+        for (let input of inputs) {
+            input.disabled = publishing;
+        }
+
+        //change button color and text when connected
+        let toggle_connect = document.querySelector("#connect");
+        toggle_connect.innerHTML = "Disconnect";
+        toggle_connect.classList.add("btn-danger");
+        toggle_connect.classList.remove("btn-success");
+
+
+        document.querySelector("#thingy-status-connected").innerHTML =
 			`${check_mark_span} Yes`;
 		document.querySelector("#thingy-status-battery").innerHTML =
 			please_wait_message;
 		document.querySelector("#thingy-status-name").innerHTML = await device.getName();
+		document.querySelector("#toggle-publish").classList.remove("disabled")
+        document.querySelector("#toggle-publish").classList.add("active")
 
-		await device.ledBreathe({color: 'red', intensity: 100, delay: 2000});
+        await device.ledBreathe({color: 'red', intensity: 100, delay: 2000});
 
 		await device.batteryLevelEnable(function(data) {
 			document.querySelector("#thingy-status-battery").innerHTML =
@@ -71,6 +86,7 @@ async function connect(device) {
 
 	for (let [name, options] of Object.entries(channels)) {
 		let checkbox = document.querySelector(`#send-${name}`);
+
 		let sensor_channel = name;
 
 		if ('sensor_channel' in options) {
@@ -89,12 +105,19 @@ async function connect(device) {
 
 		checkbox.addEventListener('click', async function() {
 			if (checkbox.checked) {
+				console.log("Sjekket av" + checkbox.id);
 				document.querySelector(`#${name}-readout`).innerHTML =
 					please_wait_message;
 				await enableChannel(update_element, true);
+				if (!sensor_array.includes(checkbox.id)){
+                    sensor_array.push(checkbox.id);
+                }
 			} else {
 				await enableChannel(update_element, false);
 				document.querySelector(`#${name}-readout`).innerHTML = '';
+                if (sensor_array.includes(checkbox.id)){
+                    remove(sensor_array, checkbox.id);
+                }
 			}
 		});
 	}
@@ -105,64 +128,89 @@ async function connect(device) {
 let publishing_interval = null;
 let stop_publish_func = null;
 
+function remove(array, element) {
+    const index = array.indexOf(element);
+    array.splice(index, 1);
+}
 
 // Called when the user presses the publish button. Publishes the
 // thingy data to IOTA marketplace at user specified interval using
 // the imported publish function
 async function start_publishing(device) {
-	let form = document.querySelector("#settings-form");
-	let interval = parseInt(form.querySelector("#send-interval").value);
+    var i;
+    for (i = 0; i<sensor_array.length; i++){
+        sensor_array[i] = sensor_array[i].replace('send-', '');
+    }
 
-	let packet = {};
-	let stop_functions = [];
+    if (thingy_connected){
 
-	for (let [name, options] of Object.entries(channels)) {
-		// Get the enable function for this channel
-		let sensor_channel = name;
-		if ('sensor_channel' in options) {
-			sensor_channel = options.sensor_channel;
-		}
-		let enableChannel = device[`${sensor_channel}Enable`].bind(device);
+        let form = document.querySelector("#settings-form");
+        let interval = parseInt(form.querySelector("#send-interval").value);
+		let idmp_uuid = document.querySelector('#idmp_uuid').value;
+		let idmp_secretKey = document.querySelector('#idmp_secretKey').value;
 
-		let update_function = function(data) {
-			if ('transform_data' in options) {
-				data = options.transform_data(data);
+        let packet = {};
+        let stop_functions = [];
+
+
+        for (let [name, options] of Object.entries(channels)) {
+        	//console.log("Name is: " + name);
+        	if (sensor_array.includes(name)){
+
+                let sensor_channel = name;
+                if ('sensor_channel' in options) {
+                    sensor_channel = options.sensor_channel;
+                }
+                let enableChannel = device[`${sensor_channel}Enable`].bind(device);
+
+                let update_function = function(data) {
+                    if ('transform_data' in options) {
+                        data = options.transform_data(data);
+                    }
+                    packet[name] = data.value.toString();
+                }
+                await enableChannel(update_function, true);
+                stop_functions.push(async function() {
+                    await enableChannel(update_function, false);
+                });
+
 			}
-			packet[name] = data.value.toString();
-		}
+            }
 
-		await enableChannel(update_function, true);
-		stop_functions.push(async function() {
-			await enableChannel(update_function, false);
-		});
-	}
+            // Uses the publish function at selected interval to post data from thingy
+            let do_publish = async () => {
+                countDown(60*interval);
+				console.log("publishing", packet);
+				console.log("publishing", Object.keys(packet).length);
 
-	// Uses the publish function at selected interval to post data from thingy
-	let do_publish = async () => {
-		countDown(60*interval);
-		if (!(Object.keys(packet).length === 0 && packet.constructor === Object)){
-			await publish({
-				time: Date.now(),
-				data: packet
-			});
-		}
-	};
-	do_publish();
-	publishing_interval = setInterval(do_publish, 1000 * 60 * interval);
+                if (!(Object.keys(packet).length === 0 && packet.constructor === Object)){
+					await publish({
+						time: Date.now(),
+						data: packet
+					}, idmp_uuid, idmp_secretKey);
+                }
+            };
+			setTimeout(do_publish, 3000);
 
-	document.querySelector("#publish-status").innerHTML =
-		"Idle";
+            publishing_interval = setInterval(do_publish, 1000 * 60 * interval);
 
-	stop_publish_func = async function stop_publish() {
-		for (let func of stop_functions) {
-			await func();
-		}
+            document.querySelector("#publish-status").innerHTML =
+                "Idle";
+
+            stop_publish_func = async function stop_publish() {
+                for (let func of stop_functions) {
+                    await func();
+                }
+            }
+
+	}else{
+		console.log("Not connected to the Thingy");
 	}
 }
 
 let count_down_interval = null;
 
-// Counts seconds in the selected interval, updates html whith seconds remaining
+// Counts seconds in the selected interval, updates html with seconds remaining
 function countDown(i) {
 	stopCountDown();
     count_down_interval = setInterval(function () {
@@ -179,9 +227,23 @@ function stopCountDown() {
 		'<span class="text-muted">Never</span>';
 }
 
+
+
 // stops publishing to the IOTA marketplace, resets publishing status and countdown timer in HTML
 async function stop_publishing() {
-	if (publishing_interval != null) {
+
+	// Remove sensor data
+    for (let [name, options] of Object.entries(channels)) {
+        document.querySelector(`#${name}-readout`).innerHTML = '';
+    }
+
+	// Uncheck all boxes
+    for (let [name, options] of Object.entries(channels)) {
+        let checkbox = document.querySelector(`#send-${name}`);
+        checkbox.checked = false;
+    }
+
+    if (publishing_interval != null) {
 		clearInterval(publishing_interval);
 	}
 
@@ -192,40 +254,66 @@ async function stop_publishing() {
 
 	document.querySelector("#publish-status").innerHTML =
 		"Not publishing";
+
+	sensor_array = [];
 }
 
 // Function run on page load
 // Sets event listeners to the connect and publish buttons
 // Runs connect(), start_publishing() and stop_publishing() if clicked
+
+
 window.addEventListener('load', async function () {
 	document.querySelector("#connect").addEventListener("click", async () => {
 		await connect(thingy);
 	});
 
+    //let newCheckbox = document.querySelector(`#send-${name}`);
+    //console.log(document.querySelector(`#send-${name}`));
+    //newCheckbox.disabled = true;
+
 	let toggle_publishing = document.querySelector("#toggle-publish");
+	let toggle_connect = document.querySelector("#connect");
+
+	toggle_connect.addEventListener("click", async() =>{
+		if (!thingy_connected){
+            toggle_connect.innerHTML = "Connect";
+            toggle_connect.classList.add("btn-success");
+            toggle_connect.classList.remove("btn-danger");
+            toggle_publishing.classList.remove("active");
+            toggle_publishing.classList.add("disabled");
+
+            let form = document.querySelector("#settings-form");
+			let inputs = form.getElementsByTagName("input");
+			for (let input of inputs) {
+				input.disabled = true;
+			}
+		}
+	});
+
 
 	toggle_publishing.addEventListener("click", async () => {
 		let form = document.querySelector("#settings-form");
 		let inputs = form.getElementsByTagName("input");
 
+
+    if (thingy_connected){
 		publishing = !publishing;
 
 		for (let input of inputs) {
 			input.disabled = publishing;
 		}
-
-		if (publishing) {
-			toggle_publishing.classList.add("btn-danger");
-			toggle_publishing.classList.remove("btn-success");
-			toggle_publishing.innerHTML = "Stop publishing";
-			await start_publishing(thingy);
-		} else {
-			toggle_publishing.classList.add("btn-success");
-			toggle_publishing.classList.remove("btn-danger");
-			toggle_publishing.innerHTML = "Start publishing";
-			await stop_publishing();
-		}
+			if (publishing) {
+				toggle_publishing.classList.add("btn-danger");
+				toggle_publishing.classList.remove("btn-success");
+				toggle_publishing.innerHTML = "Stop publishing";
+				await start_publishing(thingy);
+			} else {
+				toggle_publishing.classList.add("btn-success");
+				toggle_publishing.classList.remove("btn-danger");
+				toggle_publishing.innerHTML = "Start publishing";
+				await stop_publishing();
+			}
+        }
 	})
 });
-
-
