@@ -1,5 +1,6 @@
 import {Thingy} from "./vendor/thingy.js";
 import {publish} from "./data_publisher.js";
+import {appendPacket} from "./aggregator.js";
 
 let thingy = new Thingy({logEnabled: true});
 let thingy_connected = false;
@@ -168,14 +169,16 @@ async function start_publishing(device) {
                         data = options.transform_data(data);
                     }
                     packet[name] = data.value.toString();
-                }
+                };
                 await enableChannel(update_function, true);
                 stop_functions.push(async function() {
                     await enableChannel(update_function, false);
                 });
 
 			}
-            }
+        	}
+
+		appendPacket(packet);
 
             // Uses the publish function at selected interval to post data from thingy
             let do_publish = async () => {
