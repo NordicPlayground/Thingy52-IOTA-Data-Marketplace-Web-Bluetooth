@@ -7,7 +7,7 @@ let index = 0;
 
 let packets = [];
 function append(packet) {
-    packets.append(packet);
+    packets.push(packet);
 }
 
 function get() {
