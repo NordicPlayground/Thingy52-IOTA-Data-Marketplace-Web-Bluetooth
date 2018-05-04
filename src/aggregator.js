@@ -3,29 +3,42 @@
 let dummy_packet = {'temperature':24,'humidity':880,
     'pressure':400,'co2':400,'voc':2};
 
+let index = 0;
+
 let packets = [];
-
-
 function append(packet) {
-    
-    c.execute("INSERT INTO data VALUES (?,?,?,?,?)",(
-    packet['temperature'],
-        packet['humidity'],
-        packet['pressure'],
-        packet['co2'],
-        packet['voc']))
-    conn.commit()
+    packets.append(packet);
 }
 
-//return averages of the data, remove entries and add avg as an entry
-//this can be expanded to include more powerful agregation
-def get():
-c.execute('''SELECT AVG(temperature),AVG(humidity),
-AVG(pressure),AVG(co2),AVG(voc)
-FROM data''')
-a = c.fetchone()
-c.execute("DELETE FROM data")
-packet = {'temperature':a[0],'humidity':a[1],'pressure':a[2],
-    'co2':a[3],'voc':a[4]}
-append(packet)
-return packet
+function get() {
+    let sumList = [0, 0, 0, 0, 0];
+    for(let i = index; i < packets.length; i++ ) {
+        sumList[0] += packets[i]['temprature'];
+        sumList[1] += packets[i]['humidity'];
+        sumList[2] += packets[i]['pressure'];
+        sumList[3] += packets[i]['co2'];
+        sumList[4] += packets[i]['voc'];
+    }
+
+    console.log(sumList);
+    sumList.forEach((e) => {
+        e = e/packets.length - index;
+    });
+    console.log(sumList);
+    index = packets.length;
+    console.log("index: " + index);
+    return {
+        'temperature':sumList[0],
+        'humidity': sumList[1],
+        'pressure': sumList[2],
+        'co2': sumList[3],
+        'voc': sumList[4]};
+}
+
+append(dummy_packet);
+append(dummy_packet);
+append(dummy_packet);
+append(dummy_packet);
+
+get();
+
