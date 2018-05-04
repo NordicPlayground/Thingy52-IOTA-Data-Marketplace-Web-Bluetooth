@@ -140,6 +140,7 @@ async function start_publishing(device) {
                     data = options.transform_data(data);
                 }
                 packet[name] = data.value.toString();
+                console.log(packet[name])
             }
 
             await enableChannel(update_function, true);
