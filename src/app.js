@@ -1,6 +1,6 @@
 import {Thingy} from "./vendor/thingy.js";
 import {publish} from "./data_publisher.js";
-import {appendPacket} from "./aggregator.js";
+import {appendPacket, get_aggregate} from "./aggregator.js";
 
 let thingy = new Thingy({logEnabled: true});
 let thingy_connected = false;
@@ -182,8 +182,12 @@ async function start_publishing(device) {
             // Uses the publish function at selected interval to post data from thingy
             let do_publish = async () => {
                 countDown(60*interval);
+                console.log("packet before aggregate", packet);
+                packet = get_aggregate();
 				console.log("publishing", packet);
 				console.log("publishing", Object.keys(packet).length);
+
+
 
                 if (!(Object.keys(packet).length === 0 && packet.constructor === Object)){
 					await publish({
