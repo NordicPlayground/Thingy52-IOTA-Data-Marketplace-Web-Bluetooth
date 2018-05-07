@@ -1,5 +1,7 @@
 import {Thingy} from "./vendor/thingy.js";
 import {publish} from "./data_publisher.js";
+import {Aggregator} from "./aggregator.js";
+
 
 let thingy = new Thingy({logEnabled: true});
 let thingy_connected = false;
@@ -69,8 +71,8 @@ async function connect(device) {
 		document.querySelector("#thingy-status-battery").innerHTML =
 			please_wait_message;
 		document.querySelector("#thingy-status-name").innerHTML = await device.getName();
-		document.querySelector("#toggle-publish").classList.remove("disabled")
-        document.querySelector("#toggle-publish").classList.add("active")
+		document.querySelector("#toggle-publish").classList.remove("disabled");
+        document.querySelector("#toggle-publish").classList.add("active");
 
         await device.ledBreathe({color: 'red', intensity: 100, delay: 2000});
 
@@ -138,27 +140,25 @@ function remove(array, element) {
 // thingy data to IOTA marketplace at user specified interval using
 // the imported publish function
 async function start_publishing(device) {
-    var i;
+    let aggregator = new Aggregator();
+	let i;
     for (i = 0; i<sensor_array.length; i++){
         sensor_array[i] = sensor_array[i].replace('send-', '');
     }
 
+
     if (thingy_connected && sensor_array.length > 0){
         checked_input = true;
-
         let form = document.querySelector("#settings-form");
         let interval = parseInt(form.querySelector("#send-interval").value);
 		let idmp_uuid = document.querySelector('#idmp_uuid').value;
 		let idmp_secretKey = document.querySelector('#idmp_secretKey').value;
 
-        let packet = {};
         let stop_functions = [];
 
 
         for (let [name, options] of Object.entries(channels)) {
-        	//console.log("Name is: " + name);
         	if (sensor_array.includes(name)){
-
                 let sensor_channel = name;
                 if ('sensor_channel' in options) {
                     sensor_channel = options.sensor_channel;
@@ -169,19 +169,20 @@ async function start_publishing(device) {
                     if ('transform_data' in options) {
                         data = options.transform_data(data);
                     }
-                    packet[name] = data.value.toString();
-                }
+                    aggregator.append_datapoint(data.value, name);
+                };
                 await enableChannel(update_function, true);
                 stop_functions.push(async function() {
                     await enableChannel(update_function, false);
                 });
 
 			}
-            }
+        	}
 
             // Uses the publish function at selected interval to post data from thingy
             let do_publish = async () => {
                 countDown(60*interval);
+                let packet = aggregator.compose_packet();
 				console.log("publishing", packet);
 				console.log("publishing", Object.keys(packet).length);
 
