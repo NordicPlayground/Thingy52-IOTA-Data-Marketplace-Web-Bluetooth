@@ -18,6 +18,9 @@ class data_list {
         return (Math.round( (this.list.reduce((a, b) => a + b, 0) /
             this.list.length) * 100 ) / 100).toString();
     }
+    clear() {
+        this.list = [];
+    }
 }
 packet_blueprint.forEach(e => data_table[e] = new data_list(e));
 
@@ -30,6 +33,7 @@ export const compose_packet = () => {
     packet_blueprint.forEach(e => {
         if(data_table[e].get_average() != null){
             packet[e] = data_table[e].get_average();
+            data_table[e].clear();
         }
     });
     return packet;
