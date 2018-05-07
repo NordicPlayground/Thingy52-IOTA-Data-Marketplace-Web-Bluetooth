@@ -8,6 +8,7 @@ let thingy_connected = false;
 
 let publishing = false;
 let sensor_array = [];
+let checked_input = false;
 
 
 let check_mark = "&#x2713;"; // check mark character
@@ -145,7 +146,9 @@ async function start_publishing(device) {
         sensor_array[i] = sensor_array[i].replace('send-', '');
     }
 
-    if (thingy_connected){
+
+    if (thingy_connected && sensor_array.length > 0){
+        checked_input = true;
         let form = document.querySelector("#settings-form");
         let interval = parseInt(form.querySelector("#send-interval").value);
 		let idmp_uuid = document.querySelector('#idmp_uuid').value;
@@ -204,7 +207,7 @@ async function start_publishing(device) {
             }
 
 	}else{
-		console.log("Not connected to the Thingy");
+		console.log("Not connected to the Thingy or not checked any sensor data");
 	}
 }
 
@@ -233,15 +236,15 @@ function stopCountDown() {
 async function stop_publishing() {
 
 	// Remove sensor data
-    for (let [name, options] of Object.entries(channels)) {
-        document.querySelector(`#${name}-readout`).innerHTML = '';
-    }
+    //for (let [name, options] of Object.entries(channels)) {
+    //    document.querySelector(`#${name}-readout`).innerHTML = '';
+    //}
 
 	// Uncheck all boxes
-    for (let [name, options] of Object.entries(channels)) {
-        let checkbox = document.querySelector(`#send-${name}`);
-        checkbox.checked = false;
-    }
+    //for (let [name, options] of Object.entries(channels)) {
+    //    let checkbox = document.querySelector(`#send-${name}`);
+    //    checkbox.checked = false;
+    //}
 
     if (publishing_interval != null) {
 		clearInterval(publishing_interval);
@@ -256,6 +259,7 @@ async function stop_publishing() {
 		"Not publishing";
 
 	sensor_array = [];
+	checked_input = false;
 }
 
 // Function run on page load
@@ -297,22 +301,24 @@ window.addEventListener('load', async function () {
 		let inputs = form.getElementsByTagName("input");
 
 
-    if (thingy_connected){
+    if ((thingy_connected && sensor_array.length > 0) || publishing){
 		publishing = !publishing;
+        //let checkbox = document.querySelector(`#send-${name}`);
 
-		for (let input of inputs) {
+        for (let input of inputs) {
 			input.disabled = publishing;
 		}
-			if (publishing) {
-				toggle_publishing.classList.add("btn-danger");
-				toggle_publishing.classList.remove("btn-success");
-				toggle_publishing.innerHTML = "Stop publishing";
-				await start_publishing(thingy);
-			} else {
-				toggle_publishing.classList.add("btn-success");
-				toggle_publishing.classList.remove("btn-danger");
-				toggle_publishing.innerHTML = "Start publishing";
-				await stop_publishing();
+
+        if (publishing) {
+			await start_publishing(thingy);
+			toggle_publishing.classList.add("btn-danger");
+			toggle_publishing.classList.remove("btn-success");
+			toggle_publishing.innerHTML = "Stop publishing";
+        } else {
+			toggle_publishing.classList.add("btn-success");
+			toggle_publishing.classList.remove("btn-danger");
+			toggle_publishing.innerHTML = "Start publishing";
+			await stop_publishing();
 			}
         }
 	})

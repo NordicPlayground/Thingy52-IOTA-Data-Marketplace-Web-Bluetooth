@@ -86,18 +86,20 @@
 					<p id="publish-status-next-time"><span class="text-muted">Never</span> </p>
 
 				</div>
+					<div class ="grouping">
 
 				<div class="w3-container" id="uuid_cont">
 					<form id ="uuid">
-						<h5 class="w3-opacity"><b>UUID</b></h5>
-						<input type="text" id="idmp_uuid" value="thingy-02"><br>
+						<h5 class="w3-opacity" id="did"><b>Device ID</b></h5>
+						<input type="text" style="font-size: 15px" id="idmp_uuid" value="thingy-02"><br>
 					</form>
 				</div>
-				<div class="w3-container">
+				<div class="w3-container" id="secretKey_cont">
 					<form id ="secretKey">
-						<h5 class="w3-opacity"><b>Secret Key</b></h5>
-						<input type="text" id="idmp_secretKey" value="T9XKPHUAMYBIPVC"><br>
+						<h5 class="w3-opacity" id="skey"><b>Secret Key</b></h5>
+						<input type="text" style="font-size: 15px" id="idmp_secretKey" value="T9XKPHUAMYBIPVC"><br>
 					</form>
+				</div>
 				</div>
 
 				</div>
@@ -111,11 +113,11 @@
 
 					<div class="input-group input-group-lg">
 						<div class="input-group-prepend">
-							<span class="input-group-text">Every</span>
+							<span class="input-group-text" style="font-size: 15px">Every</span>
 						</div>
-						<input class="form-control" type="number" name="send_interval" id="send-interval" value="1" disabled>
+						<input class="form-control" type="number" style="font-size: 15px" name="send_interval" min="1" id="send-interval" value="1" disabled>
 						<div class="input-group-append">
-							<span class="input-group-text">minutes</span>
+							<span class="input-group-text" style="font-size: 15px">minutes</span>
 						</div>
 					</div>
 
