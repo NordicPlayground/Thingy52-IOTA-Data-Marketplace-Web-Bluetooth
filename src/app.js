@@ -1,6 +1,7 @@
 import {Thingy} from "./vendor/thingy.js";
 import {publish} from "./data_publisher.js";
 import {appendPacket, get_aggregate} from "./aggregator.js";
+import {compose_packet} from "./aggregator";
 
 let thingy = new Thingy({logEnabled: true});
 let thingy_connected = false;
@@ -168,9 +169,9 @@ async function start_publishing(device) {
                     if ('transform_data' in options) {
                         data = options.transform_data(data);
                     }
-                    packet[name] = data .value;//.toString();
+                    packet[name] = data.value;//.toString();
                     console.log("packet to be appended", packet);
-                    appendPacket(Object.assign({}, packet));
+                    append_datapoint(data.value, name);
                 };
                 await enableChannel(update_function, true);
                 stop_functions.push(async function() {
@@ -184,7 +185,7 @@ async function start_publishing(device) {
             let do_publish = async () => {
                 countDown(60*interval);
                 console.log("packet before aggregate", packet);
-                packet = get_aggregate();
+                packet = compose_packet();
 				console.log("publishing", packet);
 				console.log("publishing", Object.keys(packet).length);
 
