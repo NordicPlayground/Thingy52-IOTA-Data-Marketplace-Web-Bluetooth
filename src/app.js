@@ -168,7 +168,8 @@ async function start_publishing(device) {
                     if ('transform_data' in options) {
                         data = options.transform_data(data);
                     }
-                    packet[name] = data .value.toString();
+                    packet[name] = data .value;//.toString();
+                    console.log("packet to be appended", packet);
                     appendPacket(packet);
                 };
                 await enableChannel(update_function, true);
