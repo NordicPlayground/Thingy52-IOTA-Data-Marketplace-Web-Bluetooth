@@ -1,4 +1,6 @@
 class DataList {
+    //type - string describing type of data
+    //list - list of datapoints of the given type
     constructor(type) {
         this.type = type;
         this.list = [];
@@ -28,6 +30,7 @@ export class Aggregator {
     append_datapoint(data, type) {
         this.data_table[type].append(data);
     }
+    //Returns a dictionary with keys like packet_blueprint and avereged values
     compose_packet() {
         let packet = {};
         this.packet_blueprint.forEach(e => {
