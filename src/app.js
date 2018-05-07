@@ -1,6 +1,6 @@
 import {Thingy} from "./vendor/thingy.js";
 import {publish} from "./data_publisher.js";
-import {appendPacket, get_aggregate} from "./aggregator.js";
+import {append_datapoint, compose_packet} from "./aggregator.js";
 import {compose_packet} from "./aggregator";
 
 let thingy = new Thingy({logEnabled: true});
@@ -70,8 +70,8 @@ async function connect(device) {
 		document.querySelector("#thingy-status-battery").innerHTML =
 			please_wait_message;
 		document.querySelector("#thingy-status-name").innerHTML = await device.getName();
-		document.querySelector("#toggle-publish").classList.remove("disabled")
-        document.querySelector("#toggle-publish").classList.add("active")
+		document.querySelector("#toggle-publish").classList.remove("disabled");
+        document.querySelector("#toggle-publish").classList.add("active");
 
         await device.ledBreathe({color: 'red', intensity: 100, delay: 2000});
 
@@ -170,7 +170,7 @@ async function start_publishing(device) {
                         data = options.transform_data(data);
                     }
                     packet[name] = data.value;//.toString();
-                    console.log("packet to be appended", packet);
+                    console.log("Value to be appended", name, data.value);
                     append_datapoint(data.value, name);
                 };
                 await enableChannel(update_function, true);

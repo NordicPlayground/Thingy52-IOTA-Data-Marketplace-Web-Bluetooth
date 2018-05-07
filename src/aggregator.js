@@ -19,10 +19,7 @@ class data_list {
             this.list.length) * 100 ) / 100).toString();
     }
 }
-
-for (let i = 0; i < packet_blueprint.length; i++) {
-    data_table[packet_blueprint[i]] = new data_list(packet_blueprint[i]);
-}
+packet_blueprint.forEach(e => data_table[e] = new data_list(e));
 
 export const append_datapoint = (data, type) => {
     data_table[type].append(data);
