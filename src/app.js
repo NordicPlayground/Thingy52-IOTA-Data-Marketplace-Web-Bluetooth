@@ -235,15 +235,15 @@ function stopCountDown() {
 async function stop_publishing() {
 
 	// Remove sensor data
-    for (let [name, options] of Object.entries(channels)) {
-        document.querySelector(`#${name}-readout`).innerHTML = '';
-    }
+    //for (let [name, options] of Object.entries(channels)) {
+    //    document.querySelector(`#${name}-readout`).innerHTML = '';
+    //}
 
 	// Uncheck all boxes
-    for (let [name, options] of Object.entries(channels)) {
-        let checkbox = document.querySelector(`#send-${name}`);
-        checkbox.checked = false;
-    }
+    //for (let [name, options] of Object.entries(channels)) {
+    //    let checkbox = document.querySelector(`#send-${name}`);
+    //    checkbox.checked = false;
+    //}
 
     if (publishing_interval != null) {
 		clearInterval(publishing_interval);
@@ -300,28 +300,24 @@ window.addEventListener('load', async function () {
 		let inputs = form.getElementsByTagName("input");
 
 
-    if (thingy_connected){
+    if ((thingy_connected && sensor_array.length > 0) || publishing){
 		publishing = !publishing;
-        let checkbox = document.querySelector(`#send-${name}`);
-
+        //let checkbox = document.querySelector(`#send-${name}`);
 
         for (let input of inputs) {
 			input.disabled = publishing;
 		}
 
         if (publishing) {
-            if (checked_input == true){
-                await start_publishing(thingy);
-                toggle_publishing.classList.add("btn-danger");
-                toggle_publishing.classList.remove("btn-success");
-                toggle_publishing.innerHTML = "Stop publishing";
-			}
-
-			} else {
-				toggle_publishing.classList.add("btn-success");
-				toggle_publishing.classList.remove("btn-danger");
-				toggle_publishing.innerHTML = "Start publishing";
-				await stop_publishing();
+			await start_publishing(thingy);
+			toggle_publishing.classList.add("btn-danger");
+			toggle_publishing.classList.remove("btn-success");
+			toggle_publishing.innerHTML = "Stop publishing";
+        } else {
+			toggle_publishing.classList.add("btn-success");
+			toggle_publishing.classList.remove("btn-danger");
+			toggle_publishing.innerHTML = "Start publishing";
+			await stop_publishing();
 			}
         }
 	})
