@@ -1,7 +1,7 @@
 import {Thingy} from "./vendor/thingy.js";
 import {publish} from "./data_publisher.js";
-import {append_datapoint, compose_packet} from "./aggregator.js";
-import {compose_packet} from "./aggregator";
+import {Aggregator} from "./aggregator.js";
+
 
 let thingy = new Thingy({logEnabled: true});
 let thingy_connected = false;
@@ -139,7 +139,8 @@ function remove(array, element) {
 // thingy data to IOTA marketplace at user specified interval using
 // the imported publish function
 async function start_publishing(device) {
-    var i;
+    let aggregator = new Aggregator();
+	var i;
     for (i = 0; i<sensor_array.length; i++){
         sensor_array[i] = sensor_array[i].replace('send-', '');
     }
@@ -151,7 +152,6 @@ async function start_publishing(device) {
 		let idmp_uuid = document.querySelector('#idmp_uuid').value;
 		let idmp_secretKey = document.querySelector('#idmp_secretKey').value;
 
-        let packet = {};
         let stop_functions = [];
 
 
@@ -169,9 +169,8 @@ async function start_publishing(device) {
                     if ('transform_data' in options) {
                         data = options.transform_data(data);
                     }
-                    packet[name] = data.value;//.toString();
                     console.log("Value to be appended", name, data.value);
-                    append_datapoint(data.value, name);
+                    aggregator.append_datapoint(data.value, name);
                 };
                 await enableChannel(update_function, true);
                 stop_functions.push(async function() {
@@ -184,8 +183,7 @@ async function start_publishing(device) {
             // Uses the publish function at selected interval to post data from thingy
             let do_publish = async () => {
                 countDown(60*interval);
-                console.log("packet before aggregate", packet);
-                packet = compose_packet();
+                let packet = aggregator.compose_packet();
 				console.log("publishing", packet);
 				console.log("publishing", Object.keys(packet).length);
 
