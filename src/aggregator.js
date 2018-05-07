@@ -18,6 +18,7 @@ export const get_aggregate = () => {
         while (true) {
             if (count < index) break;
             if (packets[count][packet_blueprint[i]]){
+                console.log("adding",packet_blueprint[i],packets[count][packet_blueprint[i]]);
                 data_table[i].push(packets[count][packet_blueprint[i]]);
             } else break;
             count--;
@@ -25,12 +26,14 @@ export const get_aggregate = () => {
 
     }
     let packet = {};
+    console.log("filled data_table",data_table);
     data_table.forEach( (table_entry, table_index) => {
         if(table_entry.length > 0)
-            packet[packet_blueprint[table_index]] = table_entry.reduce((a, b) => a + b, 0) / table_entry.length;
+            packet[packet_blueprint[table_index]]
+                = table_entry.reduce((a, b) => a + b, 0) / table_entry.length;
     });
 
     index = packets.length;
-
+    console.log("packet to be returned by get_aggregate",packet);
     return packet;
 };
