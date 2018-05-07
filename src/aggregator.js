@@ -20,8 +20,9 @@ export const get_aggregate = () => {
             if (packets[count][packet_blueprint[i]]){
                 data_table[i].push(packets[count][packet_blueprint[i]]);
             } else break;
+            count--;
         }
-        count--;
+
     }
     let packet = {};
     data_table.forEach( (table_entry, table_index) => {
