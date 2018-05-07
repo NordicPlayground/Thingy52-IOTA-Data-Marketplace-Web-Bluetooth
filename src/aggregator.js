@@ -1,11 +1,4 @@
-//() {} []
-//packet_blueprint - The expected structure and values of a packet
-//index - The last endpoint for aggregation
-//packets - The list of received packets
-let packet_blueprint = ['temperature', 'humidity','pressure','co2','voc'];
-let data_table = {};
-
-class data_list {
+class DataList {
     constructor(type) {
         this.type = type;
         this.list = [];
@@ -22,19 +15,27 @@ class data_list {
         this.list = [];
     }
 }
-packet_blueprint.forEach(e => data_table[e] = new data_list(e));
 
-export const append_datapoint = (data, type) => {
-    data_table[type].append(data);
-};
-
-export const compose_packet = () => {
-    let packet = {};
-    packet_blueprint.forEach(e => {
-        if(data_table[e].get_average() != null){
-            packet[e] = data_table[e].get_average();
-            data_table[e].clear();
-        }
-    });
-    return packet;
-};
+export class Aggregator {
+    //packet_blueprint - The expected structure and values of a packet
+    //index - The last endpoint for aggregation
+    //packets - The list of received packets
+    constructor() {
+        this.packet_blueprint = ['temperature', 'humidity','pressure','co2','voc'];
+        this.data_table = {};
+        this.packet_blueprint.forEach(e => this.data_table[e] = new DataList(e));
+    }
+    append_datapoint(data, type) {
+        this.data_table[type].append(data);
+    }
+    compose_packet() {
+        let packet = {};
+        this.packet_blueprint.forEach(e => {
+            if(this.data_table[e].get_average() != null){
+                packet[e] = this.data_table[e].get_average();
+                this.data_table[e].clear();
+            }
+        });
+        return packet;
+    }
+}
