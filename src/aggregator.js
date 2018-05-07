@@ -30,7 +30,7 @@ export const get_aggregate = () => {
     data_table.forEach( (table_entry, table_index) => {
         if(table_entry.length > 0)
             packet[packet_blueprint[table_index]]
-                = table_entry.reduce((a, b) => a + b, 0) / table_entry.length;
+                = (table_entry.reduce((a, b) => a + b, 0) / table_entry.length).toString();
     });
 
     index = packets.length;
