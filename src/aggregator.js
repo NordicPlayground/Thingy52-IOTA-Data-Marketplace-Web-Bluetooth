@@ -19,9 +19,8 @@ class DataList {
 }
 
 export class Aggregator {
-    //packet_blueprint - The expected structure and values of a packet
-    //index - The last endpoint for aggregation
-    //packets - The list of received packets
+    //packet_blueprint - the expected structure and values of a packet
+    //data_table - the list of received data of given type
     constructor() {
         this.packet_blueprint = ['temperature', 'humidity','pressure','co2','voc'];
         this.data_table = {};
