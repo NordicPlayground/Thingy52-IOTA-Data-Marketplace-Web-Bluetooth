@@ -140,13 +140,12 @@ function remove(array, element) {
 // the imported publish function
 async function start_publishing(device) {
     let aggregator = new Aggregator();
-	var i;
+	let i;
     for (i = 0; i<sensor_array.length; i++){
         sensor_array[i] = sensor_array[i].replace('send-', '');
     }
 
     if (thingy_connected){
-
         let form = document.querySelector("#settings-form");
         let interval = parseInt(form.querySelector("#send-interval").value);
 		let idmp_uuid = document.querySelector('#idmp_uuid').value;
@@ -156,9 +155,7 @@ async function start_publishing(device) {
 
 
         for (let [name, options] of Object.entries(channels)) {
-        	//console.log("Name is: " + name);
         	if (sensor_array.includes(name)){
-
                 let sensor_channel = name;
                 if ('sensor_channel' in options) {
                     sensor_channel = options.sensor_channel;
@@ -169,7 +166,6 @@ async function start_publishing(device) {
                     if ('transform_data' in options) {
                         data = options.transform_data(data);
                     }
-                    console.log("Value to be appended", name, data.value);
                     aggregator.append_datapoint(data.value, name);
                 };
                 await enableChannel(update_function, true);
@@ -186,8 +182,6 @@ async function start_publishing(device) {
                 let packet = aggregator.compose_packet();
 				console.log("publishing", packet);
 				console.log("publishing", Object.keys(packet).length);
-
-
 
                 if (!(Object.keys(packet).length === 0 && packet.constructor === Object)){
 					await publish({
