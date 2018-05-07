@@ -9,7 +9,7 @@ export const appendPacket = (packet) => {
     console.log("Aggregator packets: " + packets);
 }
 
-function get() {
+export const get = () => {
     let sumList = [0, 0, 0, 0, 0];
     for(let i = index; i < packets.length; i++ ) {
         sumList[0] += packets[i]['temperature'];
