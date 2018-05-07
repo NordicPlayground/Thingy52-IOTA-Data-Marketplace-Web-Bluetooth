@@ -170,7 +170,7 @@ async function start_publishing(device) {
                     }
                     packet[name] = data .value;//.toString();
                     console.log("packet to be appended", packet);
-                    appendPacket(packet);
+                    appendPacket(Object.assign({}, packet));
                 };
                 await enableChannel(update_function, true);
                 stop_functions.push(async function() {
