@@ -76,32 +76,33 @@
 			<div class="w3-container w3-card w3-white w3-margin-bottom">
 				<h2 class="w3-text-grey w3-padding-16"><i class="fa fa-cogs fa-fw w3-margin-right w3-xxlarge w3-text-teal"></i>Settings</h2>
 
-				<div class = "flex-box">
-				<div class="w3-container">
-					<h5 class="w3-opacity"><b>Status</b></h5>
-					<p id="publish-status">Not publishing</p>
-				</div>
-				<div class="w3-container" id="next_publish">
-					<h5 class="w3-opacity"><b>Next publish</b></h5>
-					<p id="publish-status-next-time"><span class="text-muted">Never</span> </p>
+				<div class="row">
+					<div class="col-md-6">
+						<div class="row">
+							<div class="col-6 form-group border-right">
+								<label>Status</label>
+								<input readonly class="form-control-plaintext" value="Not publishing">
+							</div>
+							<div class="col-6 form-group border-right-0 border-md-right">
+								<label>Next publish</label>
+								<input readonly class="form-control-plaintext" value="Never">
 
-				</div>
-					<div class ="grouping">
-
-				<div class="w3-container" id="uuid_cont">
-					<form id ="uuid">
-						<h5 class="w3-opacity" id="did"><b>Device ID</b></h5>
-						<input type="text" style="font-size: 15px" id="idmp_uuid" value=""><br>
-					</form>
-				</div>
-				<div class="w3-container" id="secretKey_cont">
-					<form id ="secretKey">
-						<h5 class="w3-opacity" id="skey"><b>Secret Key</b></h5>
-						<input type="text" style="font-size: 15px" id="idmp_secretKey" value=""><br>
-					</form>
-				</div>
-				</div>
-
+							</div>
+						</div>
+					</div>
+					<div class="col-md-6">
+						<hr class="d-md-none">
+						<div class="row">
+							<div class="col-md-6 form-group border-right border-md-right-0">
+								<label for="idmp_uuid">Device ID</label>
+								<input class="form-control" type="text" id="idmp_uuid">
+							</div>
+							<div class="col-md-6 form-group">
+								<label for="idmp_secretKey">Secret Key</label>
+								<input class="form-control" type="text" id="idmp_secretKey">
+							</div>
+						</div>
+					</div>
 				</div>
 
 				<hr>
