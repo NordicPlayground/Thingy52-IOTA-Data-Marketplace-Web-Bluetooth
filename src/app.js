@@ -276,6 +276,47 @@ window.addEventListener('load', async function () {
     //console.log(document.querySelector(`#send-${name}`));
     //newCheckbox.disabled = true;
 
+	let idmp_uuid = document.querySelector("#idmp_uuid");
+	let idmp_secretKey = document.querySelector("#idmp_secretKey");
+
+	function load_storage() {
+		var storage = window.localStorage;
+		if (!storage) {
+			console.warn("Local storage is not supported.");
+			return;
+		}
+
+		let uuid = storage.getItem('idmp_uuid')
+		let secretKey = storage.getItem('idmp_secretKey')
+
+		console.log(uuid, secretKey);
+
+		if (!uuid) {
+			uuid = '';
+		}
+		if (!secretKey) {
+			secretKey = '';
+		}
+
+		idmp_uuid.value = uuid;
+		idmp_secretKey.value = secretKey;
+	}
+
+	load_storage();
+
+	function save_idmp_data() {
+		var storage = window.localStorage;
+		if (!storage) {
+			console.warn("Local storage is not supported.");
+			return;
+		}
+		storage.setItem('idmp_uuid', idmp_uuid.value);
+		storage.setItem('idmp_secretKey', idmp_secretKey.value);
+	}
+
+	idmp_uuid.addEventListener("change", save_idmp_data);
+	idmp_secretKey.addEventListener("change", save_idmp_data);
+
 	let toggle_publishing = document.querySelector("#toggle-publish");
 	let toggle_connect = document.querySelector("#connect");
 
