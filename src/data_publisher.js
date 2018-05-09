@@ -10,7 +10,9 @@ var debug = false; // Set to 'false' to publish data live
 //let secretKey = 'T9XKPHUAMYBIPVC'; // Your device's secret key here
 
 // API end point
-let endpoint = 'https://api.marketplace.tangle.works/newData'
+let endpoint = 'https://api.marketplace.tangle.works/';
+let newDataEndpoint = 'newData';
+let newDeviceEndpoint = 'newDevice';
 
 // Random Key Generator
 const keyGen = length => {
@@ -74,7 +76,7 @@ const pushKeys = async (root, sidekey, uuid, secretKey) => {
 		time: Date.now()
 	}
 	// Initiate Fetch Call
-	var resp = await fetch(endpoint, {
+	var resp = await fetch(newDataEndpoint, {
 		method: 'post',
 		headers: {
 			'Content-Type': 'application/json'
@@ -82,4 +84,70 @@ const pushKeys = async (root, sidekey, uuid, secretKey) => {
 		body: JSON.stringify({ id: uuid, packet, sk: secretKey })
 	})
 	return resp.json()
+}
+
+export const createDevice = async (apikey, owner, name, position, channels) => {
+	var sk = keyGen(15);
+	var address = keyGen(81);
+
+	var possibleChannels = {
+		'temperature': {
+			'id': 'temperature',
+			'unit': 'C',
+			'name': 'Temperature',
+		},
+		'presure': {
+			'id': 'pressure',
+			'unit': 'hPa',
+			'name': 'Pressure',
+		},
+		'humidity': {
+			'id': 'humidity',
+			'unit': '%',
+			'name': 'Humidity',
+		},
+		'co2': {
+			'id': 'co2',
+			'unit': 'ppm',
+			'name': 'CO2',
+		},
+		'voc': {
+			'id': 'voc',
+			'unit': 'ppb',
+			'name': 'VOC',
+		},
+	};
+
+	var channels = channels.map(name => possibleChannels[name]);
+
+	var resp = await fetch(newDeviceEndpoint, {
+		method: 'post',
+		headers: {
+			'Content-Type': 'application/json',
+		},
+		body: JSON.stringify({
+			'apiKey': apikey,
+			'sk': sk,
+			'id': name,
+			'device': {
+				'sensorId': name,
+				'type': 'Nordic Thingy:52',
+				'location': {
+					'country': position.country,
+					'city': position.city,
+				},
+				'lon': position.lon,
+				'lat': position.lat,
+				'dataTypes': channels,
+				'owner': owner,
+				'address': address,
+			},
+		})
+	});
+
+	return {
+		'name': name,
+		'sk': sk,
+		'address': address,
+	}
 }
