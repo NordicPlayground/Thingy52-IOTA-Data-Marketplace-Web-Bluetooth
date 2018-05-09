@@ -7,49 +7,48 @@
 	<link type="text/css" rel="stylesheet" href="/css/bootstrap.min.css">
 	<link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
 	<link type="text/css" rel="stylesheet" href="/css/mainpage.css">
-	<link rel='stylesheet' href='https://fonts.googleapis.com/css?family=Roboto'>
 	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
-	<style>
-		html,body,h1,h2,h3,h4,h5,h6 {font-family: "Roboto", sans-serif}
-	</style>
 	<script type="module" src="bundle.js"></script>
 </head>
 
 <body class="w3-light-grey">
 
-<!-- Page Container -->
-<!-- to get same size boxes: <div class="w3-content w3-margin-top" style="max-width:75%;">
- -->
+<div class="container mt-3">
+	<div class="row">
 
-<div class="w3-content w3-margin-top" style="max-width:1175px;">
-
-	<!-- The Grid -->
-	<div class="w3-row-padding">
-
-		<!-- Left Column -->
-		<div class="w3-third">
-
-			<div class="w3-white w3-text-grey w3-card-4">
-				<div class="w3-display-container">
-					<img src="images/Nordic-Thingy-52.jpg" style="width:100%" alt="Avatar">
-				</div>
-				<br>
-				<div class="w3-container">
-
+		<div class="col-md-4">
+			<div class="card mb-3">
+				<img class="card-img-top" src="images/Nordic-Thingy-52.jpg" alt="Avatar">
+				<div class="card-body">
 					<table class="status-table">
 						<tr>
-							<th><i class="fa fa-bluetooth-b fa-fw w3-margin-right w3-large w3-text-teal"></i>Connected</th>
-							<td id="thingy-status-connected"><span class="text-danger">&#x2715;</span> No</td>
+							<td class="icon">
+								<i class="fa fa-bluetooth-b fa-fw w3-text-teal"></i>
+							</td>
+							<th>Connected</th>
+							<td id="thingy-status-connected">
+								<span class="text-danger">&#x2715;</span> No
+							</td>
 						</tr>
 
 						<tr>
-							<th><i class="fa fa-tag fa-fw w3-margin-right w3-large w3-text-teal"></i>Name</th>
-							<td id="thingy-status-name"><span class="text-muted">n/a</span></td>
+							<td class="icon">
+								<i class="fa fa-tag fa-fw w3-text-teal"></i>
+							</td>
+							<th>Name</th>
+							<td id="thingy-status-name">
+								<span class="text-muted">n/a</span>
+							</td>
 						</tr>
 
 						<tr>
-							<th><i class="fa fa-battery-half fa-fw w3-margin-right w3-large w3-text-teal"></i>Battery</th>
-							<td id="thingy-status-battery"><span class="text-muted">n/a</span></td>
+							<td class="icon">
+								<i class="fa fa-battery-half fa-fw w3-text-teal"></i>
+							</td>
+							<th>Battery</th>
+							<td id="thingy-status-battery">
+								<span class="text-muted">n/a</span>
+							</td>
 						</tr>
 					</table>
 					<hr>
@@ -58,120 +57,116 @@
 					</b></p>
 					<br>
 				</div>
-			</div><br>
-
-			<!-- End Left Column -->
+			</div>
 		</div>
 
-		<!-- Right Column -->
-		<div class="w3-twothird">
-
-			<div class="w3-container w3-card w3-white w3-margin-bottom">
-				<h2 class="w3-text-grey w3-padding-16"><i class="fa fa-cogs fa-fw w3-margin-right w3-xxlarge w3-text-teal"></i>Settings</h2>
-
-				<div class="row">
-					<div class="col-md-6">
-						<div class="row">
-							<div class="col-6 form-group border-right">
-								<label>Status</label>
-								<input readonly class="form-control-plaintext" value="Not publishing">
-							</div>
-							<div class="col-6 form-group border-right-0 border-md-right">
-								<label>Next publish</label>
-								<input readonly class="form-control-plaintext" value="Never">
-
-							</div>
-						</div>
-					</div>
-					<div class="col-md-6">
-						<hr class="d-md-none">
-						<div class="row">
-							<div class="col-md-6 form-group border-right border-md-right-0">
-								<label for="idmp_uuid">Device ID</label>
-								<input class="form-control" type="text" id="idmp_uuid">
-							</div>
-							<div class="col-md-6 form-group">
-								<label for="idmp_secretKey">Secret Key</label>
-								<input class="form-control" type="text" id="idmp_secretKey">
-							</div>
-						</div>
-					</div>
+		<div class="col-md-8 mb-3">
+			<div class="card">
+				<div class="card-header">
+					<h2>
+						<i class="fa fa-cogs fa-fw mr-1 w3-text-teal"></i>
+						Settings
+					</h2>
 				</div>
+				<div class="card-body">
 
-				<hr>
+					<div class="row">
+						<div class="col-md-6">
+							<div class="row">
+								<div class="col-6 form-group border-right">
+									<label>Status</label>
+									<input readonly class="form-control-plaintext" value="Not publishing">
+								</div>
+								<div class="col-6 form-group border-right-0 border-md-right">
+									<label>Next publish</label>
+									<input readonly class="form-control-plaintext" value="Never">
 
-				<div class="w3-container">
-					<form id="settings-form">
-					<h5 class="w3-opacity"><b>How often should the data be published? </b></h5>
-
-
-					<div class="input-group input-group-lg">
-						<div class="input-group-prepend">
-							<span class="input-group-text" style="font-size: 15px">Every</span>
+								</div>
+							</div>
 						</div>
-						<input class="form-control" type="number" style="font-size: 15px" name="send_interval" min="1" id="send-interval" value="1" disabled>
-						<div class="input-group-append">
-							<span class="input-group-text" style="font-size: 15px">minutes</span>
+						<div class="col-md-6">
+							<hr class="d-md-none">
+							<div class="row">
+								<div class="col-md-6 form-group border-right border-md-right-0">
+									<label for="idmp_uuid">Device ID</label>
+									<input class="form-control" type="text" id="idmp_uuid">
+								</div>
+								<div class="col-md-6 form-group">
+									<label for="idmp_secretKey">Secret Key</label>
+									<input class="form-control" type="text" id="idmp_secretKey">
+								</div>
+							</div>
 						</div>
 					</div>
-
-						<hr>
-
-						<h5 class="w3-opacity"><b><label class="lead">Select what sensor data should be published</label></b></h5>
-						<div class="form-group">
-							<div class="form-check">
-								<input class="form-check-input" type="checkbox" id="send-temperature" name="send_temperature" disabled>
-								<label class="form-check-label" for="send-temperature">Temperature</label>
-								<span id="temperature-readout"></span>
-							</div>
-
-							<div class="form-check">
-								<input  class="form-check-input" type="checkbox" id="send-pressure" name="send_pressure" disabled>
-								<label class="form-check-label" for="send-pressure">Pressure</label>
-								<span id="pressure-readout"></span>
-							</div>
-
-							<div class="form-check">
-								<input class="form-check-input" type="checkbox" id="send-humidity" name="send_humidity" disabled>
-								<label class="form-check-label" for="send-humidity">Humidity</label>
-								<span id="humidity-readout"></span>
-							</div>
-
-							<div class="form-check">
-								<input class="form-check-input" type="checkbox" id="send-co2" name="send_co2" disabled>
-								<label class="form-check-label" for="send-co2">CO2</label>
-								<span id="co2-readout"></span>
-							</div>
-
-							<div class="form-check">
-								<input class="form-check-input" type="checkbox" id="send-voc" name="send_voc" disabled>
-								<label class="form-check-label" for="send-voc">VOC</label>
-								<span id="voc-readout"></span>
-							</div>
-
-
-						</div>
-					</form>
 
 					<hr>
-					<p class="w3-large w3-text-theme"><b><button id="toggle-publish" class="btn btn-success disabled">Start publishing</button>
-					</b></p>
-					<br>
+
+					<div class="w3-container">
+						<form id="settings-form">
+							<h5 class="w3-opacity"><b>How often should the data be published? </b></h5>
+
+
+							<div class="input-group input-group-lg">
+								<div class="input-group-prepend">
+									<span class="input-group-text" style="font-size: 15px">Every</span>
+								</div>
+								<input class="form-control" type="number" style="font-size: 15px" name="send_interval" min="1" id="send-interval" value="1" disabled>
+								<div class="input-group-append">
+									<span class="input-group-text" style="font-size: 15px">minutes</span>
+								</div>
+							</div>
+
+							<hr>
+
+							<h5 class="w3-opacity"><b><label class="lead">Select what sensor data should be published</label></b></h5>
+							<div class="form-group">
+								<div class="form-check">
+									<input class="form-check-input" type="checkbox" id="send-temperature" name="send_temperature" disabled>
+									<label class="form-check-label" for="send-temperature">Temperature</label>
+									<span id="temperature-readout"></span>
+								</div>
+
+								<div class="form-check">
+									<input  class="form-check-input" type="checkbox" id="send-pressure" name="send_pressure" disabled>
+									<label class="form-check-label" for="send-pressure">Pressure</label>
+									<span id="pressure-readout"></span>
+								</div>
+
+								<div class="form-check">
+									<input class="form-check-input" type="checkbox" id="send-humidity" name="send_humidity" disabled>
+									<label class="form-check-label" for="send-humidity">Humidity</label>
+									<span id="humidity-readout"></span>
+								</div>
+
+								<div class="form-check">
+									<input class="form-check-input" type="checkbox" id="send-co2" name="send_co2" disabled>
+									<label class="form-check-label" for="send-co2">CO2</label>
+									<span id="co2-readout"></span>
+								</div>
+
+								<div class="form-check">
+									<input class="form-check-input" type="checkbox" id="send-voc" name="send_voc" disabled>
+									<label class="form-check-label" for="send-voc">VOC</label>
+									<span id="voc-readout"></span>
+								</div>
+
+
+							</div>
+						</form>
+
+						<hr>
+						<p class="w3-large w3-text-theme"><b><button id="toggle-publish" class="btn btn-success disabled">Start publishing</button>
+						</b></p>
+						<br>
 
 
 					</div>
 
 				</div>
 			</div>
-
-
-			<!-- End Right Column -->
 		</div>
-
-		<!-- End Grid -->
 	</div>
-
-	<!-- End Page Container -->
+</div>
 </div>
 
 
@@ -182,7 +177,6 @@
 	<a href="https://www.instagram.com/nordicsemi/?hl=nb"><i class="fa fa-instagram w3-hover-opacity"></i></a>
 	<a href="https://twitter.com/nordictweets?lang=no"><i class="fa fa-twitter w3-hover-opacity"></i></a>
 	<a href="https://www.linkedin.com/company/nordic-semiconductor-asa/?originalSubdomain=no"><i class="fa fa-linkedin w3-hover-opacity"></i></a>
-	<!-- <p>Powered by <a href="https://www.w3schools.com/w3css/default.asp" target="_blank">w3.css</a></p> -->
 </footer>
 
 

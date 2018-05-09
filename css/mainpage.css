@@ -27,6 +27,9 @@ body {
 .status-table td {
     padding: 5px;
 }
+.status-table td.row {
+	width: auto;
+}
 
 /* Cards */
 .w3-card-4, .w3-card{
