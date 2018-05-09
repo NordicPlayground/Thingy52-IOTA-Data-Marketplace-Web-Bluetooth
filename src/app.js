@@ -1,5 +1,5 @@
 import {Thingy} from "./vendor/thingy.js";
-import {publish} from "./data_publisher.js";
+import {publish, createDevice} from "./data_publisher.js";
 import {Aggregator} from "./aggregator.js";
 
 
@@ -319,6 +319,7 @@ window.addEventListener('load', async function () {
 
 	let toggle_publishing = document.querySelector("#toggle-publish");
 	let toggle_connect = document.querySelector("#connect");
+	let add_device = document.querySelector("#add-device");
 
 	toggle_connect.addEventListener("click", async() =>{
 		if (!thingy_connected){
@@ -341,26 +342,57 @@ window.addEventListener('load', async function () {
 		let form = document.querySelector("#settings-form");
 		let inputs = form.getElementsByTagName("input");
 
+    	if ((thingy_connected && sensor_array.length > 0) || publishing){
+			publishing = !publishing;
+			//let checkbox = document.querySelector(`#send-${name}`);
 
-    if ((thingy_connected && sensor_array.length > 0) || publishing){
-		publishing = !publishing;
-        //let checkbox = document.querySelector(`#send-${name}`);
+			for (let input of inputs) {
+				input.disabled = publishing;
+			}
 
-        for (let input of inputs) {
-			input.disabled = publishing;
-		}
-
-        if (publishing) {
-			await start_publishing(thingy);
-			toggle_publishing.classList.add("btn-danger");
-			toggle_publishing.classList.remove("btn-success");
-			toggle_publishing.innerHTML = "Stop publishing";
-        } else {
-			toggle_publishing.classList.add("btn-success");
-			toggle_publishing.classList.remove("btn-danger");
-			toggle_publishing.innerHTML = "Start publishing";
-			await stop_publishing();
+			if (publishing) {
+				await start_publishing(thingy);
+				toggle_publishing.classList.add("btn-danger");
+				toggle_publishing.classList.remove("btn-success");
+				toggle_publishing.innerHTML = "Stop publishing";
+			} else {
+				toggle_publishing.classList.add("btn-success");
+				toggle_publishing.classList.remove("btn-danger");
+				toggle_publishing.innerHTML = "Start publishing";
+				await stop_publishing();
 			}
         }
+	});
+
+	add_device.addEventListener("click", async () => {
+		let form = document.querySelector("#add-device-form");
+		let inputs = form.getElementsByTagName("input");
+
+		let device = {}
+		let position = {}
+		let channels = []
+		for (let input of inputs){
+			device[input.name] = input.value
+			
+			if (input.name.slice(0,7) == "channel" && input.value == "on"){
+				channels.push(input.name.slice(8))
+			}
+			switch (input.name) {	
+				case "device-latitude": 
+					position["lat"] = input.value
+				case "device-longditude":
+					position["lon"] = input.value
+				case "device-location":
+					position["city"] = input.value
+				case "country":
+					position["country"] = input.value
+
+			}
+		}
+		console.log(device)
+		console.log(position);
+		console.log(channels)
+		let res = await createDevice(device["api-key"], device["device-owner"], device["device-name"], position, channels)
+		
 	})
 });
