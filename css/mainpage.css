@@ -4,6 +4,17 @@
 	}
 }
 
+footer {
+    position: fixed;
+    height: 100px;
+    bottom: 0;
+    width: 100%;
+}
+
+body {
+	padding-bottom: 100px;
+}
+
 /* Table */
 
 .new_table{
