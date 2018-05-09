@@ -4,15 +4,26 @@
 	}
 }
 
-footer {
-    position: fixed;
-    height: 100px;
-    bottom: 0;
-    width: 100%;
-}
-
 body {
 	padding-bottom: 100px;
+}
+
+.nrf-logo {
+	float: left;
+	background-image: url(/images/nordic.png);
+	background-position: center;
+	background-repeat: no-repeat;
+	background-size: auto 100%;
+	display: block;
+	width: 3.4em;
+	height: 3em;
+	margin-right: .4em;
+	flex-shrink: 0;
+}
+
+.logo-bar {
+	display: flex;
+	align-items: center;
 }
 
 /* Table */
@@ -32,25 +43,8 @@ body {
 }
 
 /* Cards */
-.w3-card-4, .w3-card{
+.card {
     box-shadow: 0 1px 3px 0 rgba(0,0,0,0.16);
-}
-/* Smaller right-card. Also smaller "how often should data be published?"
-.w3-twothird{
-    width: 60%;
-
-}
-*/
-
-
-/* align "Status" and "Next publish" */
-.flex-box{
-    display: flex;
-    flex-wrap: wrap;
-}
-.grouping{
-    display: flex;
-    flex-wrap: wrap;
 }
 
 /* buttons */
@@ -72,13 +66,19 @@ body {
 
 }
 
-
-/* footer */
-.w3-text-teal, .w3-hover-text-teal:hover{
+.text-teal {
     color: #249DD6 !important;
 }
-.w3-teal, .w3-hover-teal:hover {
-    background-color: #249DD6 !important;
-    width: 100%;
+
+/* footer */
+footer {
+    position: fixed;
     height: 100px;
+    bottom: 0;
+    width: 100%;
+}
+
+footer.bg-teal {
+    color: #fff !important;
+    background-color: #249DD6 !important;
 }
