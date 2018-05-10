@@ -2,11 +2,54 @@ import {Thingy} from "./vendor/thingy.js";
 import {publish, createDevice} from "./data_publisher.js";
 import {Aggregator} from "./aggregator.js";
 
+let debug = false;
 
 let thingy = new Thingy({logEnabled: true});
 let thingy_connected = false;
+let thingy_status = 'not_connected';
+let thingy_error = null;
+let thingy_data = {
+	channels: {
+		temperature: {active: false, value: null},
+		humidity: {active: false, value: null},
+		pressure: {active: false, value: null},
+		co2: {active: false, value: null},
+		voc: {active: false, value: null},
+	},
+	name: null,
+	battery: null,
+};
+
+let channels = {
+	'temperature': {unit: '&#x2103;'},
+	'pressure': {unit: 'hPa'},
+	'humidity': {unit: '%'},
+	'co2': {unit: 'ppm', sensor_channel: 'gas', transform_data: data => data.eCO2},
+	'voc': {unit: 'ppb', sensor_channel: 'gas', transform_data: data => data.TVOC},
+};
+
+let aggregator = new Aggregator();
+
+let channel_notify_functions = {};
+
+for (let [name, options] of Object.entries(channels)) {
+	channel_notify_functions[name] = function(data) {
+		if ('transform_data' in options) {
+			data = options.transform_data(data);
+		}
+		thingy_data.channels[name].value = data.value;
+		update_interface();
+
+		aggregator.append_datapoint(data.value, name);
+	}
+}
+
 
 let publishing = false;
+let publish_time_left = null;
+let publishing_interval = null;
+let publish_pushing_to_tangle = false;
+
 let sensor_array = [];
 let checked_input = false;
 
@@ -16,119 +59,246 @@ let cross = "&#x2715;"; // cross character
 let check_mark_span = `<span class="text-success">${check_mark}</span>`; // HTML for checkmark
 let cross_span = `<span class="text-danger">${cross}</span>`; // HTML for cross (failed connection)
 let please_wait_message = '<span class="text-muted">Please wait...</span>';
+let not_appliccable_message = '<span class="text-muted">n/a</span>';
 
 document.thingy = thingy; // makes thingy available in document scope?
 
-let channels = {
-	'temperature': {},
-	'pressure': {},
-	'humidity': {},
-	'co2': {sensor_channel: 'gas', transform_data: data => data.eCO2},
-	'voc': {sensor_channel: 'gas', transform_data: data => data.TVOC},
-};
+function number_of_active_channels() {
+	let count = 0;
+	for (let [name, channel] of Object.entries(thingy_data.channels)) {
+		if (channel.active) {
+			count += 1;
+		}
+	}
+	return count;
+}
+
+function update_interface() {
+	let el_thingy_status = document.getElementById('thingy-status-connected');
+
+	if (thingy_status == 'not_connected') {
+		el_thingy_status.innerHTML = `${cross_span} No`;
+	} else if (thingy_status == 'connecting') {
+		el_thingy_status.innerHTML = 'Connecting...';
+	} else if (thingy_status == 'connected') {
+		el_thingy_status.innerHTML = `${check_mark_span} Connected`;
+	}
+
+	let el_thingy_connect_button = document.getElementById('connect');
+
+	if (thingy_status == 'not_connected') {
+		el_thingy_connect_button.classList.add('btn-success');
+		el_thingy_connect_button.classList.remove('btn-danger');
+		el_thingy_connect_button.innerHTML = 'Connect';
+	} else {
+		el_thingy_connect_button.classList.add('btn-danger');
+		el_thingy_connect_button.classList.remove('btn-success');
+		el_thingy_connect_button.innerHTML = 'Disconnect';
+	}
+
+	let send_inputs = document.querySelectorAll("input[name^='send_']");
+	let enable_send_inputs = (thingy_status == 'connected') && !publishing;
+
+	for (let input of send_inputs) {
+		input.disabled = !enable_send_inputs;
+	}
+
+	let toggle_publish_button = document.getElementById('toggle-publish');
+
+	if (thingy_status == 'connected') {
+		toggle_publish_button.disabled = false;
+		toggle_publish_button.classList.remove('disabled');
+	} else {
+		toggle_publish_button.disabled = true;
+		toggle_publish_button.classList.add('disabled');
+	}
+
+
+	let thingy_name_readout = document.getElementById('thingy-status-name');
+	let thingy_battery_readout = document.getElementById('thingy-status-battery');
+
+	if (thingy_status == 'connected') {
+		for (let [name, options] of Object.entries(channels)) {
+			let readout = document.getElementById(`${name}-readout`);
+
+			if (thingy_data.channels[name].active) {
+				if (thingy_data.channels[name].value !== null) {
+					readout.innerHTML = `${thingy_data.channels[name].value} ${options.unit}`;
+				} else {
+					readout.innerHTML = please_wait_message;
+				}
+			} else {
+				readout.innerHTML = '';
+			}
+		}
+
+		if (thingy_data.name) {
+			thingy_name_readout.innerHTML = thingy_data.name;
+		} else {
+			thingy_name_readout.innerHTML = please_wait_message;
+		}
+		if (thingy_data.battery) {
+			thingy_battery_readout.innerHTML = `${thingy_data.battery} %`;
+		} else {
+			thingy_battery_readout.innerHTML = please_wait_message;
+		}
+	} else {
+		for (let [name, options] of Object.entries(channels)) {
+			let readout = document.getElementById(`${name}-readout`);
+			readout.innerHTML = '';
+		}
+	}
+
+	if (publishing) {
+		toggle_publish_button.classList.add('btn-danger');
+		toggle_publish_button.classList.remove('btn-success');
+		toggle_publish_button.innerHTML = 'Stop publishing';
+	} else {
+		toggle_publish_button.classList.add('btn-success');
+		toggle_publish_button.classList.remove('btn-danger');
+		toggle_publish_button.innerHTML = 'Start publishing';
+
+		if (number_of_active_channels() == 0) {
+			toggle_publish_button.disabled = true;
+			toggle_publish_button.classList.add('disabled');
+		} else {
+			toggle_publish_button.disabled = false;
+			toggle_publish_button.classList.remove('disabled');
+		}
+	}
+
+	let el_thingy_error = document.getElementById('thingy-status-error');
+
+	if (thingy_error) {
+		el_thingy_error.innerHTML = thingy_error;
+		el_thingy_error.classList.remove('d-none');
+	} else {
+		el_thingy_error.classList.add('d-none');
+	}
+
+	let el_publish_state = document.getElementById('publish-state');
+	let el_publish_next = document.getElementById('publish-next');
+
+	if (!publishing) {
+		el_publish_state.value = 'Not publishing';
+		el_publish_next.value = 'Never';
+	} else {
+		if (publish_pushing_to_tangle) {
+			el_publish_state.value = 'Publishing...';
+		} else {
+			el_publish_state.value = 'Idle';
+		}
+		el_publish_next.value = `${publish_time_left} s`;
+	}
+}
+
+function update_thingy_connection_status(new_status, error) {
+	thingy_status = new_status;
+	thingy_error = error;
+
+	update_interface();
+
+	if (new_status == 'connected') {
+		for (let [name, options] of Object.entries(channels)) {
+			thingy_data.channels[name].value = null;
+			if (thingy_data.channels[name].active) {
+                let sensor_channel = name;
+                if ('sensor_channel' in options) {
+                    sensor_channel = options.sensor_channel;
+                }
+				let enableChannel = thingy[`${sensor_channel}Enable`].bind(thingy);
+				enableChannel(channel_notify_functions[name], true);
+			}
+		}
+	} else {
+		for (let [name, options] of Object.entries(channels)) {
+			if (thingy_data.channels[name].active) {
+				// Remove the listener without notifying the device,
+				// as the device is most like ly not able to respond.
+				thingy.tempEventListeners[1].splice(thingy.tempEventListeners.indexOf([
+					channel_notify_functions[name]
+				]), 1);
+			}
+		}
+	}
+}
+
+function update_channel_active(channel, active) {
+	if (thingy_data.channels[channel].active != active) {
+		thingy_data.channels[channel].active = active;
+		thingy_data.channels[channel].value = null;
+
+		update_interface();
+
+		let sensor_channel = channel;
+		if ('sensor_channel' in channels[channel]) {
+			sensor_channel = channels[channel].sensor_channel;
+		}
+		let enableChannel = thingy[`${sensor_channel}Enable`].bind(thingy);
+		enableChannel(channel_notify_functions[channel], active);
+	}
+}
+
+async function disconnect(device) {
+	await stop_publishing();
+	if (thingy_status != 'not_connected') {
+		let error = await thingy.disconnect();
+		if (error) {
+			console.log("Failed to disconnect:", error);
+		}
+		update_thingy_connection_status('not_connected');
+	}
+}
 
 // attempts to connect to a thingy device
 async function connect(device) {
 	try {
-		if (thingy_connected) {
-			let error = await thingy.disconnect();
-			if (error) {
-				console.log("Failed to disconnect:", error);
-			}
-			thingy_connected = false;
-		}
-		document.querySelector("#thingy-status-connected").innerHTML = 'Connecting...';
+		update_thingy_connection_status('connecting');
 
 		let error = await device.connect();
 
 		if (error) {
-			let message = `${cross_span} connection failed: ${error}`;
+			let present_error = undefined;
 
-			if (/User cancelled/.test(error.message)) {
-				message = `${cross_span} No`;
+			if (!(/User cancelled/.test(error.message))) {
+				present_error = error;
 			}
-			document.querySelector("#thingy-status-connected").innerHTML = message;
+
+			update_thingy_connection_status('not_connected', present_error);
 			console.log(error);
+
 			return false;
 		}
-		thingy_connected = true;
 
-        let form = document.querySelector("#settings-form");
-        let inputs = form.getElementsByTagName("input");
-        for (let input of inputs) {
-            input.disabled = publishing;
-        }
+		update_thingy_connection_status('connected');
 
-        //change button color and text when connected
-        let toggle_connect = document.querySelector("#connect");
-        toggle_connect.innerHTML = "Disconnect";
-        toggle_connect.classList.add("btn-danger");
-        toggle_connect.classList.remove("btn-success");
-
-
-        document.querySelector("#thingy-status-connected").innerHTML =
-			`${check_mark_span} Yes`;
-		document.querySelector("#thingy-status-battery").innerHTML =
-			please_wait_message;
-		document.querySelector("#thingy-status-name").innerHTML = await device.getName();
-		document.querySelector("#toggle-publish").classList.remove("disabled");
-        document.querySelector("#toggle-publish").classList.add("active");
+		thingy_data.name = await device.getName();
+		update_interface();
 
         await device.ledBreathe({color: 'red', intensity: 100, delay: 2000});
 
 		await device.batteryLevelEnable(function(data) {
-			document.querySelector("#thingy-status-battery").innerHTML =
-				data.value + " " + data.unit;
+			thingy_data.battery = data.value;
+			update_interface();
 		}, true);
+
+		// Every 2 seconds
+		device.setTemperatureInterval(2000);
+		device.setPressureInterval(2000);
+		device.setHumidityInterval(2000);
+
+		// Every 10 seconds
+		device.setGasInterval(10);
+
 	} catch (err) {
-		document.querySelector("#thingy-status-connected").innerHTML =
-            `${cross_span} connection failed: ${err}`;
+		update_thingy_connection_status('not_connected', err);
 		console.log(err);
 		return false;
-	}
-
-	for (let [name, options] of Object.entries(channels)) {
-		let checkbox = document.querySelector(`#send-${name}`);
-
-		let sensor_channel = name;
-
-		if ('sensor_channel' in options) {
-			sensor_channel = options.sensor_channel;
-		}
-
-		let update_element = function(data) {
-			if ('transform_data' in options) {
-				data = options.transform_data(data);
-			}
-			document.querySelector(`#${name}-readout`).innerHTML =
-				data.value + " " + data.unit;
-		};
-
-		let enableChannel = device[`${sensor_channel}Enable`].bind(device);
-
-		checkbox.addEventListener('click', async function() {
-			if (checkbox.checked) {
-				console.log("Sjekket av" + checkbox.id);
-				document.querySelector(`#${name}-readout`).innerHTML =
-					please_wait_message;
-				await enableChannel(update_element, true);
-				if (!sensor_array.includes(checkbox.id)){
-                    sensor_array.push(checkbox.id);
-                }
-			} else {
-				await enableChannel(update_element, false);
-				document.querySelector(`#${name}-readout`).innerHTML = '';
-                if (sensor_array.includes(checkbox.id)){
-                    remove(sensor_array, checkbox.id);
-                }
-			}
-		});
 	}
 
 	return true;
 }
 
-let publishing_interval = null;
 let stop_publish_func = null;
 
 function remove(array, element) {
@@ -136,130 +306,77 @@ function remove(array, element) {
     array.splice(index, 1);
 }
 
+function is_empty_object(obj) {
+	return (Object.keys(obj).length === 0 && obj.constructor === Object);
+}
+
 // Called when the user presses the publish button. Publishes the
 // thingy data to IOTA marketplace at user specified interval using
 // the imported publish function
 async function start_publishing(device) {
-    let aggregator = new Aggregator();
-	let i;
-    for (i = 0; i<sensor_array.length; i++){
-        sensor_array[i] = sensor_array[i].replace('send-', '');
-    }
+	if (publishing) {
+		return;
+	}
 
+	let interval = document.getElementById('send-interval').value;
 
-    if (thingy_connected && sensor_array.length > 0){
-        checked_input = true;
-        let form = document.querySelector("#settings-form");
-        let interval = parseInt(form.querySelector("#send-interval").value);
-		let idmp_uuid = document.querySelector('#idmp_uuid').value;
-		let idmp_secretKey = document.querySelector('#idmp_secretKey').value;
+	aggregator.clear();
 
-        let stop_functions = [];
+	let do_publish = async () => {
+		let packet = aggregator.compose_packet();
+		let idmp_uuid = document.querySelector("#idmp_uuid").value;
+		let idmp_secretKey = document.querySelector("#idmp_secretKey").value;
 
+		console.log("publishing", packet);
 
-        for (let [name, options] of Object.entries(channels)) {
-        	if (sensor_array.includes(name)){
-                let sensor_channel = name;
-                if ('sensor_channel' in options) {
-                    sensor_channel = options.sensor_channel;
-                }
-                let enableChannel = device[`${sensor_channel}Enable`].bind(device);
-
-                let update_function = function(data) {
-                    if ('transform_data' in options) {
-                        data = options.transform_data(data);
-                    }
-                    aggregator.append_datapoint(data.value, name);
-                };
-                await enableChannel(update_function, true);
-                stop_functions.push(async function() {
-                    await enableChannel(update_function, false);
-                });
-
+		if (!is_empty_object(packet)){
+			if (!debug) {
+				await publish({
+					time: Date.now(),
+					data: packet
+				}, idmp_uuid, idmp_secretKey);
+			} else {
+				console.log('Publishing disabled for debug');
 			}
-        	}
+		}
+	};
 
-            // Uses the publish function at selected interval to post data from thingy
-            let do_publish = async () => {
-                countDown(60*interval);
-                let packet = aggregator.compose_packet();
-				console.log("publishing", packet);
-				console.log("publishing", Object.keys(packet).length);
+	let count_down = async() => {
+		publish_time_left -= 1;
 
-                if (!(Object.keys(packet).length === 0 && packet.constructor === Object)){
-					await publish({
-						time: Date.now(),
-						data: packet
-					}, idmp_uuid, idmp_secretKey);
-                }
-            };
-			setTimeout(do_publish, 3000);
+		if (publish_time_left <= 0) {
+			publish_time_left = interval * 60;
 
-            publishing_interval = setInterval(do_publish, 1000 * 60 * interval);
+			publish_pushing_to_tangle = true;
+			update_interface();
 
-            document.querySelector("#publish-status").innerHTML =
-                "Idle";
+			await do_publish();
+			publish_pushing_to_tangle = false;
+		}
 
-            stop_publish_func = async function stop_publish() {
-                for (let func of stop_functions) {
-                    await func();
-                }
-            }
+		update_interface();
+	};
 
-	}else{
-		console.log("Not connected to the Thingy or not checked any sensor data");
-	}
+	publish_time_left = 5;
+	publishing_interval = setInterval(count_down, 1000);
+	publishing = true;
+	update_interface();
 }
-
-let count_down_interval = null;
-
-// Counts seconds in the selected interval, updates html with seconds remaining
-function countDown(i) {
-	stopCountDown();
-    count_down_interval = setInterval(function () {
-        document.getElementById("publish-status-next-time").innerHTML = i + "s";
-        i-- || clearInterval(count_down_interval);  //if i is 0, then stop the interval
-	}, 1000);
-}
-
-function stopCountDown() {
-	if (count_down_interval != null) {
-		clearInterval(count_down_interval);
-	}
-	document.querySelector("#publish-status-next-time").innerHTML =
-		'<span class="text-muted">Never</span>';
-}
-
-
 
 // stops publishing to the IOTA marketplace, resets publishing status and countdown timer in HTML
 async function stop_publishing() {
+	if (!publishing) {
+		return;
+	}
 
-	// Remove sensor data
-    //for (let [name, options] of Object.entries(channels)) {
-    //    document.querySelector(`#${name}-readout`).innerHTML = '';
-    //}
-
-	// Uncheck all boxes
-    //for (let [name, options] of Object.entries(channels)) {
-    //    let checkbox = document.querySelector(`#send-${name}`);
-    //    checkbox.checked = false;
-    //}
+	publishing = false;
 
     if (publishing_interval != null) {
 		clearInterval(publishing_interval);
+		publishing_interval = undefined;
 	}
 
-	if (stop_publish_func != null) {
-		await stop_publish_func();
-	}
-	stopCountDown();
-
-	document.querySelector("#publish-status").innerHTML =
-		"Not publishing";
-
-	sensor_array = [];
-	checked_input = false;
+	update_interface();
 }
 
 // Function run on page load
@@ -269,12 +386,12 @@ async function stop_publishing() {
 
 window.addEventListener('load', async function () {
 	document.querySelector("#connect").addEventListener("click", async () => {
-		await connect(thingy);
+		if (thingy_status == 'not_connected') {
+			await connect(thingy);
+		} else {
+			await disconnect(thingy);
+		}
 	});
-
-    //let newCheckbox = document.querySelector(`#send-${name}`);
-    //console.log(document.querySelector(`#send-${name}`));
-    //newCheckbox.disabled = true;
 
 	let idmp_uuid = document.querySelector("#idmp_uuid");
 	let idmp_secretKey = document.querySelector("#idmp_secretKey");
@@ -288,8 +405,6 @@ window.addEventListener('load', async function () {
 
 		let uuid = storage.getItem('idmp_uuid')
 		let secretKey = storage.getItem('idmp_secretKey')
-
-		console.log(uuid, secretKey);
 
 		if (!uuid) {
 			uuid = '';
@@ -317,51 +432,26 @@ window.addEventListener('load', async function () {
 	idmp_uuid.addEventListener("change", save_idmp_data);
 	idmp_secretKey.addEventListener("change", save_idmp_data);
 
+
+	for (let [name, options] of Object.entries(channels)) {
+		let checkbox = document.getElementById(`send-${name}`);
+		checkbox.addEventListener("click", () => {
+			update_channel_active(name, checkbox.checked);
+		});
+	}
+
 	let toggle_publishing = document.querySelector("#toggle-publish");
 	let toggle_connect = document.querySelector("#connect");
 	let add_device = document.querySelector("#add-device");
 
-	toggle_connect.addEventListener("click", async() =>{
-		if (!thingy_connected){
-            toggle_connect.innerHTML = "Connect";
-            toggle_connect.classList.add("btn-success");
-            toggle_connect.classList.remove("btn-danger");
-            toggle_publishing.classList.remove("active");
-            toggle_publishing.classList.add("disabled");
-
-            let form = document.querySelector("#settings-form");
-			let inputs = form.getElementsByTagName("input");
-			for (let input of inputs) {
-				input.disabled = true;
-			}
-		}
-	});
-
-
 	toggle_publishing.addEventListener("click", async () => {
-		let form = document.querySelector("#settings-form");
-		let inputs = form.getElementsByTagName("input");
-
-    	if ((thingy_connected && sensor_array.length > 0) || publishing){
-			publishing = !publishing;
-			//let checkbox = document.querySelector(`#send-${name}`);
-
-			for (let input of inputs) {
-				input.disabled = publishing;
-			}
-
-			if (publishing) {
+		if (!publishing) {
+			if (thingy_status == 'connected' && number_of_active_channels() > 0) {
 				await start_publishing(thingy);
-				toggle_publishing.classList.add("btn-danger");
-				toggle_publishing.classList.remove("btn-success");
-				toggle_publishing.innerHTML = "Stop publishing";
-			} else {
-				toggle_publishing.classList.add("btn-success");
-				toggle_publishing.classList.remove("btn-danger");
-				toggle_publishing.innerHTML = "Start publishing";
-				await stop_publishing();
 			}
-        }
+		} else {
+			await stop_publishing();
+		}
 	});
 
 	add_device.addEventListener("click", async () => {
@@ -373,12 +463,12 @@ window.addEventListener('load', async function () {
 		let channels = []
 		for (let input of inputs){
 			device[input.name] = input.value
-			
+
 			if (input.name.slice(0,7) == "channel" && input.value == "on"){
 				channels.push(input.name.slice(8))
 			}
-			switch (input.name) {	
-				case "device-latitude": 
+			switch (input.name) {
+				case "device-latitude":
 					position["lat"] = input.value
 				case "device-longditude":
 					position["lon"] = input.value
@@ -393,6 +483,8 @@ window.addEventListener('load', async function () {
 		console.log(position);
 		console.log(channels)
 		let res = await createDevice(device["api-key"], device["device-owner"], device["device-name"], position, channels)
-		
+
 	})
+
+	update_interface();
 });

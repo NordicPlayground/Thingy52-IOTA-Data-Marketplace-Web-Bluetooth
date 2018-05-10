@@ -8,9 +8,6 @@
 	<link type="text/css" rel="stylesheet" href="/css/mainpage.css">
 	<link rel="stylesheet" href="/css/fontawesome-all.min.css">
 	<link type="text/css" rel="stylesheet" href="/css/bootstrap.min.css">
-	<script src="/css/jquery.min.js"></script>
-	<script src="/css/bootstrap.min.js"></script>
-	<script type="module" src="bundle.js"></script>
 </head>
 
 <body class="bg-light">
@@ -25,6 +22,7 @@
 						<h2>Thingy:52 IOTA Data Marketplace Publisher</h2>
 					</div>
 					<div class="card-body">
+						<div class="alert alert-danger d-none" id="thingy-status-error"></div>
 						<table class="status-table">
 							<tr>
 								<td class="icon">
@@ -83,11 +81,11 @@
 									<div class="row">
 										<div class="col-6 form-group border-right">
 											<label>Status</label>
-											<input readonly class="form-control-plaintext" value="Not publishing">
+											<input readonly id="publish-state" class="form-control-plaintext" value="Not publishing">
 										</div>
 										<div class="col-6 form-group my-border-right-0 my-border-md-right">
 											<label>Next publish</label>
-											<input readonly class="form-control-plaintext" value="Never">
+											<input readonly id="publish-next" class="form-control-plaintext" value="Never">
 
 										</div>
 									</div>
@@ -128,12 +126,6 @@
 
 							<div class="form-group">
 								<label>Select Sensors</label>
-
-								<div class="form-check">
-									<input class="form-check-input" type="checkbox" id="send-temperature" name="send_temperature" disabled>
-									<label class="form-check-label" for="send-temperature">Temperature</label>
-									<span id="temperature-readout"></span>
-								</div>
 
 								<div class="form-check">
 									<input class="form-check-input" type="checkbox" id="send-temperature" name="send_temperature" disabled>
@@ -303,6 +295,10 @@
 			<i class="fa fa-linkedin"></i>
 		</a>
 	</footer>
+
+	<script src="/css/jquery.min.js"></script>
+	<script src="/css/bootstrap.min.js"></script>
+	<script type="module" src="bundle.js"></script>
 </body>
 
 </html>

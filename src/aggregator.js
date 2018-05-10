@@ -40,4 +40,10 @@ export class Aggregator {
         });
         return packet;
     }
+
+	clear() {
+        this.packet_blueprint.forEach(e => {
+			this.data_table[e].clear();
+		});
+	}
 }

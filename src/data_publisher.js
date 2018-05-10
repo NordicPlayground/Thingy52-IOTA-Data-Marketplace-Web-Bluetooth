@@ -11,8 +11,8 @@ var debug = false; // Set to 'false' to publish data live
 
 // API end point
 let endpoint = 'https://api.marketplace.tangle.works/';
-let newDataEndpoint = 'newData';
-let newDeviceEndpoint = 'newDevice';
+let newDataEndpoint = endpoint + 'newData';
+let newDeviceEndpoint = endpoint + 'newDevice';
 
 // Random Key Generator
 const keyGen = length => {
@@ -83,6 +83,10 @@ const pushKeys = async (root, sidekey, uuid, secretKey) => {
 		},
 		body: JSON.stringify({ id: uuid, packet, sk: secretKey })
 	})
+	if (!resp.ok) {
+		console.warn("IDMP push failed", await resp.text());
+		return;
+	}
 	return resp.json()
 }
 

@@ -72,11 +72,11 @@ body {
     cursor: not-allowed;
 }
 
-.btn-success{
+.btn-success {
     background-color: #249DD6 !important;
     border-color: #249DD6 !important;
 }
-.btn-success:hover{
+.btn-success:hover:not(.disabled) {
     background-color: #50B5E6 !important;
     border-color: #50B5E6 !important;
 }
