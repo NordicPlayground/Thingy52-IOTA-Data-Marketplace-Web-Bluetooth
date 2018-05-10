@@ -102,16 +102,3 @@ footer.bg-teal {
     color: #fff !important;
     background-color: #249DD6 !important;
 }
-
-.fade.in {
-    opacity: 1 !important;
-    padding-right: 0px !important;
-  }
-  .modal.in .modal-dialog {
-    -webkit-transform: translate(0, 0);
-    -o-transform: translate(0, 0);
-    transform: translate(0, 0);
-  }
-  .modal-backdrop.in {
-    opacity: 0.5 !important;
-  }
