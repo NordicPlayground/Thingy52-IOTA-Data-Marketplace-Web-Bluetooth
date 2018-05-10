@@ -5,7 +5,6 @@
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<title>IOTA Thingy</title>
-	<link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
 	<link type="text/css" rel="stylesheet" href="/css/mainpage.css">
 	<link rel="stylesheet" href="/css/fontawesome-all.min.css">
 	<link type="text/css" rel="stylesheet" href="/css/bootstrap.min.css">
@@ -14,12 +13,7 @@
 	<script type="module" src="bundle.js"></script>
 </head>
 
-<body class="w3-light-grey">
-	<!-- Button trigger modal -->
-	<button type="button" class="btn btn-primary btn-sm" data-toggle="modal" data-target="#exampleModal">
-		Add Thingy
-		<span class="glyphicon glyphicon-plus"></span>
-	</button>
+<body class="bg-light">
 	<div class="container mt-3">
 		<div class="row">
 
@@ -76,6 +70,12 @@
 						<h2>Thingy:52 IOTA Data Marketplace Publisher</h2>
 					</div>
 					<div class="card-body">
+						<div class="clearfix mb-3">
+							<button type="button" class="btn btn-success btn-sm float-right" data-toggle="modal" data-target="#add-device-modal">
+								<i class="fas fa-plus"></i>
+								Add Thingy
+							</button>
+						</div>
 
 						<form id="settings-form">
 							<div class="row">
@@ -179,11 +179,11 @@
 	</div>
 
 	<!-- Modal -->
-	<div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalTitle" aria-hidden="true">
+	<div class="modal fade" id="add-device-modal" tabindex="-1" role="dialog" aria-labelledby="add-device-modal-label" aria-hidden="true">
 		<div class="modal-dialog modal-lg " style="margin-top: 185px" role="document">
 			<div class="modal-content">
 				<div class="modal-header">
-					<h5 class="modal-title" id="exampleModalTitle">Add device on IOTA data marketplace</h5>
+					<h5 class="modal-title" id="add-device-modal-label">Add device on IOTA data marketplace</h5>
 					<button type="button" class="close" data-dismiss="modal" aria-label="Close">
 						<span aria-hidden="true">&times;</span>
 					</button>
@@ -191,163 +191,135 @@
 				<div class="modal-body">
 					<form id="add-device-form">
 
-						<div class="w3-container" id="">
-							<div class="row">
-								<div class="col">
-									<h5 class="w3-opacity" id="">
-										<b>API key</b>
-									</h5>
+						<div class="row">
+							<div class="col">
+								<h5 class="w3-opacity" id="">
+									<b>API key</b>
+								</h5>
+							</div>
+							<div class="col">
+								<input type="text" style="font-size: 15px" name="api-key" required>
+								<br>
+							</div>
+						</div>
+
+						<div class="row">
+							<div class="col">
+								<h5 class="w3-opacity" id="">
+									<b>Owner</b>
+								</h5>
+							</div>
+							<div class="col">
+								<input type="text" style="font-size: 15px" name="device-owner" required>
+								<br>
+							</div>
+						</div>
+
+						<div class="row">
+							<div class="col">
+								<h5 class="w3-opacity" id="did">
+									<b>Device ID</b>
+								</h5>
+							</div>
+							<div class="col">
+								<input type="text" style="font-size: 15px" name="device-id" required>
+								<br>
+							</div>
+						</div>
+
+						<div class="row">
+							<div class="col">
+								<h5 class="w3-opacity" id="">
+									<b>Device Name</b>
+								</h5>
+							</div>
+							<div class="col">
+								<input type="text" style="font-size: 15px" name="device-name" required>
+								<br>
+							</div>
+						</div>
+
+						<div class="row">
+							<div class="col">
+								<h5 class="w3-opacity" id="">
+									<b>Location</b>
+								</h5>
+							</div>
+							<div class="col">
+								<input type="text" style="font-size: 15px" name="device-location" required>
+								<br>
+							</div>
+						</div>
+
+						<div class="row">
+							<div class="col">
+								<h5 class="w3-opacity" id="">
+									<b>Country</b>
+								</h5>
+							</div>
+							<div class="col">
+								<input type="text" style="font-size: 15px" name="country" required>
+								<br>
+							</div>
+						</div>
+
+						<div class="row">
+							<div class="col">
+								<h5 class="w3-opacity" id="">
+									<b>Latitude</b>
+								</h5>
+							</div>
+							<div class="col">
+								<input type="text" style="font-size: 15px" name="device-latitude" required>
+								<br>
+							</div>
+						</div>
+
+						<div class="row">
+							<div class="col">
+								<h5 class="w3-opacity" id="">
+									<b>Longditude</b>
+								</h5>
+							</div>
+							<div class="col">
+								<input type="text" style="font-size: 15px" name="device-longditude" required>
+								<br>
+							</div>
+						</div>
+
+						<div class="row">
+							<div class="col">
+								<h5 class="w3-opacity" id="">
+									<b>Channels</b>
+								</h5>
+							</div>
+							<div class="col">
+								<div class="form-check">
+									<input class="form-check-input" id="channel-temperature" type="checkbox" name="channel-temperature" checked>
+									<label class="form-check-label" for="channel-temperature">Temperature</label>
 								</div>
-								<div class="col">
-									<input type="text" style="font-size: 15px" name="api-key" required>
-									<br>
+
+								<div class="form-check">
+									<input class="form-check-input" id="channel-pressure" type="checkbox" name="channel-pressure" checked>
+									<label class="form-check-label" for="channel-pressure">Pressure</label>
+								</div>
+
+								<div class="form-check">
+									<input class="form-check-input" id="channel-humidity" type="checkbox" name="channel-humidity" checked>
+									<label class="form-check-label" for="channel-humidity">Humidity</label>
+								</div>
+
+								<div class="form-check">
+									<input class="form-check-input" id="channel-co2" type="checkbox" name="channel-co2" checked>
+									<label class="form-check-label" for="channel-co2">CO2</label>
+								</div>
+
+								<div class="form-check">
+									<input class="form-check-input" id="channel-voc" type="checkbox" name="channel-voc" checked>
+									<label class="form-check-label" for="channel-voc">VOC</label>
 								</div>
 							</div>
 						</div>
-						<br>
-
-						<div class="w3-container" id="">
-							<div class="row">
-								<div class="col">
-									<h5 class="w3-opacity" id="">
-										<b>Owner</b>
-									</h5>
-								</div>
-								<div class="col">
-									<input type="text" style="font-size: 15px" name="device-owner" required>
-									<br>
-								</div>
-							</div>
-						</div>
-						<br>
-
-						<div class="w3-container" id="">
-							<div class="row">
-								<div class="col">
-									<h5 class="w3-opacity" id="did">
-										<b>Device ID</b>
-									</h5>
-								</div>
-								<div class="col">
-									<input type="text" style="font-size: 15px" name="device-id" required>
-									<br>
-								</div>
-							</div>
-						</div>
-						<br>
-
-						<div class="w3-container" id="">
-							<div class="row">
-								<div class="col">
-									<h5 class="w3-opacity" id="">
-										<b>Device Name</b>
-									</h5>
-								</div>
-								<div class="col">
-									<input type="text" style="font-size: 15px" name="device-name" required>
-									<br>
-								</div>
-							</div>
-						</div>
-						<br>
-
-						<div class="w3-container" id="">
-							<div class="row">
-								<div class="col">
-									<h5 class="w3-opacity" id="">
-										<b>Location</b>
-									</h5>
-								</div>
-								<div class="col">
-									<input type="text" style="font-size: 15px" name="device-location" required>
-									<br>
-								</div>
-							</div>
-						</div>
-						<br>
-
-						<div class="w3-container" id="">
-							<div class="row">
-								<div class="col">
-									<h5 class="w3-opacity" id="">
-										<b>Country</b>
-									</h5>
-								</div>
-								<div class="col">
-									<input type="text" style="font-size: 15px" name="country" required>
-									<br>
-								</div>
-							</div>
-						</div>
-						<br>
-
-						<div class="w3-container" id="">
-							<div class="row">
-								<div class="col">
-									<h5 class="w3-opacity" id="">
-										<b>Latitude</b>
-									</h5>
-								</div>
-								<div class="col">
-									<input type="text" style="font-size: 15px" name="device-latitude" required>
-									<br>
-								</div>
-							</div>
-						</div>
-						<br>
-
-						<div class="w3-container" id="">
-							<div class="row">
-								<div class="col">
-									<h5 class="w3-opacity" id="">
-										<b>Longditude</b>
-									</h5>
-								</div>
-								<div class="col">
-									<input type="text" style="font-size: 15px" name="device-longditude" required>
-									<br>
-								</div>
-							</div>
-						</div>
-						<br>
-
-						<div class="w3-container" id="">
-							<div class="row">
-								<div class="col">
-									<h5 class="w3-opacity" id="">
-										<b>Channels</b>
-									</h5>
-								</div>
-								<div class="col">
-									<div class="form-check">
-										<input class="form-check-input" id="channel-temperature" type="checkbox" name="channel-temperature" checked>
-										<label class="form-check-label" for="channel-temperature">Temperature</label>
-									</div>
-
-									<div class="form-check">
-										<input class="form-check-input" id="channel-pressure" type="checkbox" name="channel-pressure" checked>
-										<label class="form-check-label" for="channel-pressure">Pressure</label>
-									</div>
-
-									<div class="form-check">
-										<input class="form-check-input" id="channel-humidity" type="checkbox" name="channel-humidity" checked>
-										<label class="form-check-label" for="channel-humidity">Humidity</label>
-									</div>
-
-									<div class="form-check">
-										<input class="form-check-input" id="channel-co2" type="checkbox" name="channel-co2" checked>
-										<label class="form-check-label" for="channel-co2">CO2</label>
-									</div>
-
-									<div class="form-check">
-										<input class="form-check-input" id="channel-voc" type="checkbox" name="channel-voc" checked>
-										<label class="form-check-label" for="channel-voc">VOC</label>
-									</div>
-								</div>
-							</div>
-
-						</div>
-						<br>
 					</form>
 				</div>
 				<div class="modal-footer">
