@@ -1,6 +1,18 @@
+.my-border-right {
+	border-right: 1px solid #dee2e6 !important;
+}
+
+.my-border-right-0 {
+	border-right: 0 !important;
+}
+
 @media (min-width: 768px) {
-	.border-md-right {
+	.my-border-md-right {
 		border-right: 1px solid #dee2e6 !important;
+	}
+
+	.my-border-md-right-0 {
+		border-right: 0 !important;
 	}
 }
 
