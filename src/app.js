@@ -520,6 +520,7 @@ window.addEventListener('load', async function () {
 		}
 	});
 
+	$('[data-toggle="tooltip"]').tooltip()
 
 
 	load_storage();

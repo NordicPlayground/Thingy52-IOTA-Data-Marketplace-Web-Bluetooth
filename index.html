@@ -94,7 +94,9 @@
 									<hr class="d-md-none">
 									<div class="row">
 										<div class="col-md-6 form-group my-border-right-0 my-border-md-right">
-											<label for="idmp_uuid">Device ID</label>
+											<label for="idmp_uuid">
+												Device ID
+											</label>
 											<input class="form-control" type="text" id="idmp_uuid">
 										</div>
 										<div class="col-md-6 form-group">
@@ -173,7 +175,7 @@
 
 	<!-- Modal -->
 	<div class="modal fade" id="add-device-modal" tabindex="-1" role="dialog" aria-labelledby="add-device-modal-label" aria-hidden="true">
-		<div class="modal-dialog modal-lg " style="margin-top: 185px" role="document">
+		<div class="modal-dialog modal-lg " role="document">
 			<div class="modal-content">
 				<div class="modal-header">
 					<h5 class="modal-title" id="add-device-modal-label">Add device on IOTA data marketplace</h5>
@@ -183,23 +185,41 @@
 				</div>
 				<div class="modal-body">
 					<form id="add-device-form">
+						<p>
+							To get API key and Owner, log into the
+							<a target="_blank" href="https://data.iota.org/dashboard">IOTA Data Marketplace Dashboard</a>.
+							Copy the API key and User ID from the Dashboard into API key and Owner, respectivly.
+							From here you can also manage your devices. Device ID is the name of the deivce.
+						</p>
+						<p>
+							Note that IOTA Data Marketplace allows at most 3 devices.
+						</p>
 
 						<div class="form-group row">
-							<label class="col-sm-2 col-form-label">API key</label>
+							<label class="col-sm-2 col-form-label">
+								API key
+								<i class="float-right text-muted fas fa-question-circle" data-toggle="tooltip" data-placement="top" title="The API Key from Iota Data Marketplace Dashboard"></i>
+							</label>
 							<div class="col-sm-10">
 								<input type="text" class="form-control" name="api-key" required>
 							</div>
 						</div>
 
 						<div class="form-group row">
-							<label class="col-sm-2 col-form-label">Owner</label>
+							<label class="col-sm-2 col-form-label">
+								Owner
+								<i class="float-right text-muted fas fa-question-circle" data-toggle="tooltip" data-placement="top" title="The User Id from Iota Data Marketplace Dashboard"></i>
+							</label>
 							<div class="col-sm-10">
 								<input type="text" class="form-control" name="device-owner" required>
 							</div>
 						</div>
 
 						<div class="form-group row">
-							<label class="col-sm-2 col-form-label">Device ID</label>
+							<label class="col-sm-2 col-form-label">
+								Device ID
+								<i class="float-right text-muted fas fa-question-circle" data-toggle="tooltip" data-placement="top" title="The name of the device"></i>
+							</label>
 							<div class="col-sm-10">
 								<input type="text" class="form-control" name="device-id" required>
 							</div>
@@ -300,6 +320,7 @@
 	</footer>
 
 	<script src="/css/jquery.min.js"></script>
+	<script src="/css/popper.min.js"></script>
 	<script src="/css/bootstrap.min.js"></script>
 	<script type="module" src="bundle.js"></script>
 </body>
