@@ -194,6 +194,18 @@ function update_interface() {
 		el_publish_next.value = `${publish_time_left} s`;
 	}
 
+	let idmp_uuid = document.querySelector("#idmp_uuid").value;
+	let data_stream_link = document.getElementById("data-stream-link");
+
+	if (idmp_uuid) {
+		data_stream_link.href = `https://data.iota.org/sensor/${idmp_uuid}`;
+		data_stream_link.classList.remove('disabled');
+	} else {
+		data_stream_link.classList.add('disabled');
+		data_stream_link.href = `#`;
+	}
+
+
 	let add_device_button = document.querySelector('#add-device-button');
 	let add_device_button_icon = document.querySelector('#add-device-button i.fas');
 
@@ -471,6 +483,8 @@ function save_idmp_data() {
 	}
 	storage.setItem('idmp_uuid', idmp_uuid.value);
 	storage.setItem('idmp_secretKey', idmp_secretKey.value);
+
+	update_interface();
 }
 
 function set_idmp_data(uuid, secretKey) {
@@ -488,6 +502,8 @@ function set_idmp_data(uuid, secretKey) {
 
 	storage.setItem('idmp_uuid', uuid);
 	storage.setItem('idmp_secretKey', secretKey);
+
+	update_interface();
 }
 
 // Function run on page load
