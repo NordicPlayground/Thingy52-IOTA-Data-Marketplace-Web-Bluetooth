@@ -53,6 +53,9 @@ let publish_pushing_to_tangle = false;
 let sensor_array = [];
 let checked_input = false;
 
+let modal_creating = false;
+let modal_errors = [];
+
 
 let check_mark = "&#x2713;"; // check mark character
 let cross = "&#x2715;"; // cross character
@@ -190,6 +193,25 @@ function update_interface() {
 		}
 		el_publish_next.value = `${publish_time_left} s`;
 	}
+
+	let add_device_button = document.querySelector('#add-device-button');
+	let add_device_button_icon = document.querySelector('#add-device-button i.fas');
+
+	if (modal_creating) {
+		add_device_button.disabled = true;
+		add_device_button.classList.add('disabled');
+
+		add_device_button_icon.classList.add('spinner');
+		add_device_button_icon.classList.add('fa-spinner');
+		add_device_button_icon.classList.remove('fa-plus');
+	} else {
+		add_device_button.disabled = false;
+		add_device_button.classList.remove('disabled');
+
+		add_device_button_icon.classList.remove('spinner');
+		add_device_button_icon.classList.add('fa-plus');
+		add_device_button_icon.classList.remove('fa-spinner');
+	}
 }
 
 function update_thingy_connection_status(new_status, error) {
@@ -237,6 +259,41 @@ function update_channel_active(channel, active) {
 		let enableChannel = thingy[`${sensor_channel}Enable`].bind(thingy);
 		enableChannel(channel_notify_functions[channel], active);
 	}
+}
+
+function update_modal_interface() {
+	let inputs = document.querySelectorAll('#add-device-form input');
+	let creating_state_box = document.getElementById('modal-state-creating');
+	let accept_state_box = document.getElementById('modal-state-accept');
+
+	for (let input of inputs) {
+		input.disabled = modal_creating;
+
+		if (modal_errors.indexOf(input.name) >= 0) {
+			input.classList.add('is-invalid');
+		} else {
+			input.classList.remove('is-invalid');
+		}
+	}
+
+	let channel_error_label = document.getElementById('add-devie-modal-channels-error');
+
+	console.log(modal_errors);
+	if (modal_errors.indexOf('channels') >= 0) {
+		channel_error_label.classList.remove('d-none');
+	} else {
+		channel_error_label.classList.add('d-none');
+	}
+
+	if (modal_creating) {
+		creating_state_box.classList.remove('d-none');
+		accept_state_box.classList.add('d-none');
+	} else {
+		creating_state_box.classList.add('d-none');
+		accept_state_box.classList.remove('d-none');
+	}
+
+	update_interface();
 }
 
 async function disconnect(device) {
@@ -379,6 +436,60 @@ async function stop_publishing() {
 	update_interface();
 }
 
+function load_storage() {
+	let idmp_uuid = document.querySelector("#idmp_uuid");
+	let idmp_secretKey = document.querySelector("#idmp_secretKey");
+
+	var storage = window.localStorage;
+	if (!storage) {
+		console.warn("Local storage is not supported.");
+		return;
+	}
+
+	let uuid = storage.getItem('idmp_uuid')
+	let secretKey = storage.getItem('idmp_secretKey')
+
+	if (!uuid) {
+		uuid = '';
+	}
+	if (!secretKey) {
+		secretKey = '';
+	}
+
+	idmp_uuid.value = uuid;
+	idmp_secretKey.value = secretKey;
+}
+
+function save_idmp_data() {
+	let idmp_uuid = document.querySelector("#idmp_uuid");
+	let idmp_secretKey = document.querySelector("#idmp_secretKey");
+
+	var storage = window.localStorage;
+	if (!storage) {
+		console.warn("Local storage is not supported.");
+		return;
+	}
+	storage.setItem('idmp_uuid', idmp_uuid.value);
+	storage.setItem('idmp_secretKey', idmp_secretKey.value);
+}
+
+function set_idmp_data(uuid, secretKey) {
+	let idmp_uuid = document.querySelector("#idmp_uuid");
+	let idmp_secretKey = document.querySelector("#idmp_secretKey");
+
+	var storage = window.localStorage;
+	if (!storage) {
+		console.warn("Local storage is not supported.");
+		return;
+	}
+
+	idmp_uuid.value = uuid;
+	idmp_secretKey.value = secretKey;
+
+	storage.setItem('idmp_uuid', uuid);
+	storage.setItem('idmp_secretKey', secretKey);
+}
+
 // Function run on page load
 // Sets event listeners to the connect and publish buttons
 // Runs connect(), start_publishing() and stop_publishing() if clicked
@@ -393,41 +504,9 @@ window.addEventListener('load', async function () {
 		}
 	});
 
-	let idmp_uuid = document.querySelector("#idmp_uuid");
-	let idmp_secretKey = document.querySelector("#idmp_secretKey");
 
-	function load_storage() {
-		var storage = window.localStorage;
-		if (!storage) {
-			console.warn("Local storage is not supported.");
-			return;
-		}
-
-		let uuid = storage.getItem('idmp_uuid')
-		let secretKey = storage.getItem('idmp_secretKey')
-
-		if (!uuid) {
-			uuid = '';
-		}
-		if (!secretKey) {
-			secretKey = '';
-		}
-
-		idmp_uuid.value = uuid;
-		idmp_secretKey.value = secretKey;
-	}
 
 	load_storage();
-
-	function save_idmp_data() {
-		var storage = window.localStorage;
-		if (!storage) {
-			console.warn("Local storage is not supported.");
-			return;
-		}
-		storage.setItem('idmp_uuid', idmp_uuid.value);
-		storage.setItem('idmp_secretKey', idmp_secretKey.value);
-	}
 
 	idmp_uuid.addEventListener("change", save_idmp_data);
 	idmp_secretKey.addEventListener("change", save_idmp_data);
@@ -454,6 +533,16 @@ window.addEventListener('load', async function () {
 		}
 	});
 
+	document.getElementById('add-device-button').addEventListener("click", () => {
+		update_modal_interface();
+
+		if (modal_creating) {
+			return;
+		}
+
+		$("#add-device-modal").modal('show');
+	});
+
 	add_device.addEventListener("click", async () => {
 		let form = document.querySelector("#add-device-form");
 		let inputs = form.getElementsByTagName("input");
@@ -461,29 +550,96 @@ window.addEventListener('load', async function () {
 		let device = {}
 		let position = {}
 		let channels = []
+
 		for (let input of inputs){
 			device[input.name] = input.value
 
-			if (input.name.slice(0,7) == "channel" && input.value == "on"){
+			if (input.name.slice(0,7) == "channel" && input.checked){
 				channels.push(input.name.slice(8))
 			}
 			switch (input.name) {
-				case "device-latitude":
-					position["lat"] = input.value
-				case "device-longditude":
-					position["lon"] = input.value
-				case "device-location":
-					position["city"] = input.value
-				case "country":
-					position["country"] = input.value
-
+			case "device-latitude":
+				position["lat"] = input.value
+				break;
+			case "device-longditude":
+				position["lon"] = input.value
+				break;
+			case "device-city":
+				position["city"] = input.value
+				break;
+			case "device-country":
+				position["country"] = input.value
+				break;
 			}
 		}
-		console.log(device)
-		console.log(position);
-		console.log(channels)
-		let res = await createDevice(device["api-key"], device["device-owner"], device["device-name"], position, channels)
 
+		modal_errors = [];
+
+		if (!('api-key' in device) || !device['api-key']) {
+			modal_errors.push('api-key');
+		}
+
+		if (!('device-owner' in device) || !device['device-owner']) {
+			modal_errors.push('device-owner');
+		}
+
+		if (!('device-id' in device) || !device['device-id']) {
+			modal_errors.push('device-id');
+		}
+
+		if (!('lat' in position) || !position['lat']) {
+			modal_errors.push('device-latitude');
+		}
+
+		if (!('lon' in position) || !position['lon']) {
+			modal_errors.push('device-longditude');
+		}
+
+		if (!('city' in position) || !position['city']) {
+			modal_errors.push('device-city');
+		}
+
+		if (!('country' in position) || !position['country']) {
+			modal_errors.push('device-country');
+		}
+
+		if (channels.length == 0) {
+			modal_errors.push('channels');
+		}
+
+		if (modal_errors.length > 0) {
+			update_modal_interface();
+			return;
+		}
+
+		modal_creating = true;
+		update_modal_interface();
+
+		var res;
+
+		if (!debug) {
+			res = await createDevice(
+				device["api-key"],
+				device["device-owner"],
+				device["device-id"],
+				position,
+				channels
+			);
+		} else {
+			console.log(device, position, channels);
+			console.log("Device creation is disabled for debug mode");
+		}
+
+		if (res) {
+			set_idmp_data(res.name, res.sk);
+		}
+
+		$('#add-device-modal').modal('hide');
+
+		$('#add-device-modal').on('hidden.bs.modal', () => {
+			modal_creating = false;
+			update_modal_interface();
+		});
 	})
 
 	update_interface();

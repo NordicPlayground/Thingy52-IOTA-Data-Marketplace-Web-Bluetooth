@@ -69,7 +69,7 @@
 					</div>
 					<div class="card-body">
 						<div class="clearfix mb-3">
-							<button type="button" class="btn btn-success btn-sm float-right" data-toggle="modal" data-target="#add-device-modal">
+							<button type="button" class="btn btn-success btn-sm float-right" id="add-device-button">
 								<i class="fas fa-plus"></i>
 								Add Thingy
 							</button>
@@ -205,23 +205,16 @@
 						</div>
 
 						<div class="form-group row">
-							<label class="col-sm-2 col-form-label">Device Name</label>
+							<label class="col-sm-2 col-form-label">City</label>
 							<div class="col-sm-10">
-								<input type="text" class="form-control" name="device-name" required>
-							</div>
-						</div>
-
-						<div class="form-group row">
-							<label class="col-sm-2 col-form-label">Location</label>
-							<div class="col-sm-10">
-								<input type="text" class="form-control" name="device-location" required>
+								<input type="text" class="form-control" name="device-city" required>
 							</div>
 						</div>
 
 						<div class="form-group row">
 							<label class="col-sm-2 col-form-label">Country</label>
 							<div class="col-sm-10">
-								<input type="text" class="form-control" name="country" required>
+								<input type="text" class="form-control" name="device-country" required>
 							</div>
 						</div>
 
@@ -266,13 +259,22 @@
 									<input class="form-check-input" id="channel-voc" type="checkbox" name="channel-voc" checked>
 									<label class="form-check-label" for="channel-voc">VOC</label>
 								</div>
+								<div class="text-danger d-none" id="add-devie-modal-channels-error">
+									You must select at least one channel.
+								</div>
 							</div>
 						</div>
 					</form>
 				</div>
 				<div class="modal-footer">
-					<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-					<button type="button" id="add-device" class="btn btn-primary">Save changes</button>
+					<div id="modal-state-creating" class="d-none">
+						Creating...
+						<i class="fas fa-spinner spinner"></i>
+					</div>
+					<div id="modal-state-accept">
+						<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+						<button type="button" id="add-device" class="btn btn-primary">Save changes</button>
+					</div>
 				</div>
 			</div>
 		</div>
