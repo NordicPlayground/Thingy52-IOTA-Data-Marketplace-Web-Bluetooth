@@ -4,8 +4,9 @@
   "description": "data publishing to iota data marketplace",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "concurrently --kill-others \"npm run-script webpack\" \"npm run-script webserver\"",
+    "start": "npm run-script dev",
+    "dev": "concurrently --kill-others \"npm run-script webpack\" \"npm run-script webserver\"",
+    "build": "webpack -d",
     "webpack": "webpack -d --watch",
     "webserver": "http-server . -a 0.0.0.0 -p 8000"
   },

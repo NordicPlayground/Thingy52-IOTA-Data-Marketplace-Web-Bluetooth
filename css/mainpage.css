@@ -1,40 +1,82 @@
- 
+.my-border-right {
+	border-right: 1px solid #dee2e6 !important;
+}
+
+.my-border-right-0 {
+	border-right: 0 !important;
+}
+
+@media (min-width: 768px) {
+	.my-border-md-right {
+		border-right: 1px solid #dee2e6 !important;
+	}
+
+	.my-border-md-right-0 {
+		border-right: 0 !important;
+	}
+}
+
+label {
+	font-weight: bold;
+}
+
+.form-check label {
+	font-weight: normal;
+}
+
+body {
+	padding-bottom: 100px;
+}
+
+.nrf-logo {
+	float: left;
+	background-image: url(/images/nordic.png);
+	background-position: center;
+	background-repeat: no-repeat;
+	background-size: auto 100%;
+	display: block;
+	width: 3.4em;
+	height: 3em;
+	margin-right: .4em;
+	flex-shrink: 0;
+}
+
+.logo-bar {
+	display: flex;
+	align-items: center;
+}
 
 /* Table */
 
-.new_table{
+.status-table {
     width: 100%;
 }
-th{
+.status-table th {
     font-weight: normal;
     width: 50%;
 }
-td{
+.status-table td {
     padding: 5px;
+}
+.status-table td.row {
+	width: auto;
 }
 
 /* Cards */
-.w3-card-4, .w3-card{
+.card {
     box-shadow: 0 1px 3px 0 rgba(0,0,0,0.16);
 }
-/* align "Status" and "Next publish" */
-.flex-box{
-    display: flex;
-}
-/* vertical border between "Status" and "Next publish"*/
-#next_publish{
-    border-left: 1px solid rgba(0, 0, 0, .1);
-}
+
 /* buttons */
 .btn.disabled{
     cursor: not-allowed;
 }
 
-.btn-success{
+.btn-success {
     background-color: #249DD6 !important;
     border-color: #249DD6 !important;
 }
-.btn-success:hover{
+.btn-success:hover:not(.disabled) {
     background-color: #50B5E6 !important;
     border-color: #50B5E6 !important;
 }
@@ -44,43 +86,28 @@ td{
 
 }
 
-/*
-.w3-third{
-    min-width: 280px;
-}
-.w3-twothird{
-    min-width: 500px;
-}
-*/
-/* footer */
-.w3-text-teal, .w3-hover-text-teal:hover{
+.text-teal {
     color: #249DD6 !important;
 }
-.w3-teal, .w3-hover-teal:hover {
-    background-color: #249DD6 !important;
-    width: 100%;
+
+/* footer */
+footer {
+    position: fixed;
     height: 100px;
+    bottom: 0;
+    width: 100%;
 }
 
-
-
-
-/*
-
-@media screen and (max-width: 855px) {
-    .w3-col, .w3-half, .w3-third, .w3-twothird, .w3-threequarter, .w3-quarter {
-        width: 100%;
-        border: 2px solid black;
-    }
-/*
-    .w3-col.m8, .w3-twothird {
-        width: 48%;
-    }
-/*
-    .w3-row-padding, .w3-row-padding>.w3-half, .w3-row-padding>.w3-third, .w3-row-padding>.w3-twothird, .w3-row-padding>.w3-threequarter, .w3-row-padding>.w3-quarter, .w3-row-padding>.w3-col{
-        display: flex;
-        justify-content: center;
-    }
-
+footer.bg-teal {
+    background-color: #249DD6 !important;
 }
-*/
+
+.spinner {
+	-webkit-animation:spin 2s linear infinite;
+	-moz-animation:spin 2s linear infinite;
+	animation:spin 2s linear infinite;
+}
+
+@-moz-keyframes spin { 100% { -moz-transform: rotate(360deg); } }
+@-webkit-keyframes spin { 100% { -webkit-transform: rotate(360deg); } }
+@keyframes spin { 100% { -webkit-transform: rotate(360deg); transform:rotate(360deg); } }

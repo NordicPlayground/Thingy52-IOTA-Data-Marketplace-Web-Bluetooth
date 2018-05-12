@@ -1,181 +1,358 @@
 <!DOCTYPE html>
 <html>
+
 <head>
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
-	<title>IOTA Thingy</title>
-	<link type="text/css" rel="stylesheet" href="/css/bootstrap.min.css">
-	<link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+	<title>Thingy:52 IOTA Data Marketplace Publisher</title>
 	<link type="text/css" rel="stylesheet" href="/css/mainpage.css">
-	<link rel='stylesheet' href='https://fonts.googleapis.com/css?family=Roboto'>
-	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
-	<style>
-		html,body,h1,h2,h3,h4,h5,h6 {font-family: "Roboto", sans-serif}
-	</style>
-	<script type="module" src="bundle.js"></script>
+	<link rel="stylesheet" href="/css/fontawesome-all.min.css">
+	<link type="text/css" rel="stylesheet" href="/css/bootstrap.min.css">
 </head>
 
-<body class="w3-light-grey">
+<body class="bg-light">
+	<div class="container mt-3">
+		<div class="row">
 
-<!-- Page Container -->
-<!-- to get same size boxes: <div class="w3-content w3-margin-top" style="max-width:75%;">
- -->
-
-<div class="w3-content w3-margin-top" style="max-width:1175px;">
-
-	<!-- The Grid -->
-	<div class="w3-row-padding">
-
-		<!-- Left Column -->
-		<div class="w3-third">
-
-			<div class="w3-white w3-text-grey w3-card-4">
-				<div class="w3-display-container">
-					<img src="images/Nordic-Thingy-52.jpg" style="width:100%" alt="Avatar">
-				</div>
-				<br>
-				<div class="w3-container">
-
-					<table class="new_table">
-						<tr>
-							<th><i class="fa fa-bluetooth-b fa-fw w3-margin-right w3-large w3-text-teal"></i>Connected</th>
-							<td id="thingy-status-connected"><span class="text-danger">&#x2715;</span> No</td>
-						</tr>
-
-						<tr>
-							<th><i class="fa fa-tag fa-fw w3-margin-right w3-large w3-text-teal"></i>Name</th>
-							<td id="thingy-status-name"><span class="text-muted">n/a</span></td>
-						</tr>
-
-						<tr>
-							<th><i class="fa fa-battery-half fa-fw w3-margin-right w3-large w3-text-teal"></i>Battery</th>
-							<td id="thingy-status-battery"><span class="text-muted">n/a</span></td>
-						</tr>
-					</table>
-					<!--
-
-					<p><i class="fa fa-bluetooth-b fa-fw w3-margin-right w3-large w3-text-teal"></i>Connected<span id="thingy-status-connected"><span class="text-danger">&#x2715;</span> No</span></p>
-					<p><i class="fa fa-tag fa-fw w3-margin-right w3-large w3-text-teal"></i>Name<span id="thingy-status-name"><span class="text-muted">n/a</span></span></p>
-					<p><i class="fa fa-battery-half fa-fw w3-margin-right w3-large w3-text-teal"></i>Battery<span id="thingy-status-battery"><span class="text-muted">n/a</span></span></p>
-
-					-->
-					<hr>
-
-					<p class="w3-large w3-text-theme"><b><button id="connect" class="btn btn-success">Connect</button>
-					</b></p>
-					<br>
-				</div>
-			</div><br>
-
-			<!-- End Left Column -->
-		</div>
-
-		<!-- Right Column -->
-		<div class="w3-twothird">
-
-			<div class="w3-container w3-card w3-white w3-margin-bottom">
-				<h2 class="w3-text-grey w3-padding-16"><i class="fa fa-cogs fa-fw w3-margin-right w3-xxlarge w3-text-teal"></i>Settings</h2>
-
-				<div class = "flex-box">
-				<div class="w3-container">
-					<h5 class="w3-opacity"><b>Status</b></h5>
-					<p id="publish-status">Not publishing</p>
-				</div>
-				<div class="w3-container" id="next_publish">
-					<h5 class="w3-opacity"><b>Next publish</b></h5>
-					<p id="publish-status-next-time"><span class="text-muted">Never</span> </p>
-
-				</div>
-				</div>
-
-				<hr>
-
-				<div class="w3-container">
-					<form id="settings-form">
-					<h5 class="w3-opacity"><b>How often should the data be published? </b></h5>
-
-
-					<div class="input-group input-group-lg">
-						<div class="input-group-prepend">
-							<span class="input-group-text">Every</span>
-						</div>
-						<input class="form-control" type="number" name="send_interval" id="send-interval" value="10" disabled>
-						<div class="input-group-append">
-							<span class="input-group-text">minutes</span>
-						</div>
+			<div class="col-md-4">
+				<div class="card mb-3">
+					<img class="card-img-top d-none d-md-block" src="images/Nordic-Thingy-52.jpg" alt="thingy52">
+					<div class="card-header d-flex d-md-none logo-bar">
+						<span class="logo nrf-logo"></span>
+						<h2>Thingy:52 IOTA Data Marketplace Publisher</h2>
 					</div>
+					<div class="card-body">
+						<div class="alert alert-danger d-none" id="thingy-status-error"></div>
+						<table class="status-table">
+							<tr>
+								<td class="icon">
+									<i class="fab fa-bluetooth-b fa-fw text-teal"></i>
+								</td>
+								<th>Connected</th>
+								<td id="thingy-status-connected">
+									<span class="text-danger">&#x2715;</span> No
+								</td>
+							</tr>
 
+							<tr>
+								<td class="icon">
+									<i class="fas fa-tag fa-fw text-teal"></i>
+								</td>
+								<th>Name</th>
+								<td id="thingy-status-name">
+									<span class="text-muted">n/a</span>
+								</td>
+							</tr>
+
+							<tr>
+								<td class="icon">
+									<i class="fas fa-battery-half fa-fw text-teal"></i>
+								</td>
+								<th>Battery</th>
+								<td id="thingy-status-battery">
+									<span class="text-muted">n/a</span>
+								</td>
+							</tr>
+						</table>
 						<hr>
 
-						<h5 class="w3-opacity"><b><label class="lead">Select what sensor data should be published</label></b></h5>
-						<div class="form-group">
-							<div class="form-check">
-								<input class="form-check-input" type="checkbox" id="send-temperature" name="send_temperature" disabled>
-								<label class="form-check-label" for="send-temperature">Temperature</label>
-								<span id="temperature-readout"></span>
-							</div>
-
-							<div class="form-check">
-								<input  class="form-check-input" type="checkbox" id="send-pressure" name="send_pressure" disabled>
-								<label class="form-check-label" for="send-pressure">Pressure</label>
-								<span id="pressure-readout"></span>
-							</div>
-
-							<div class="form-check">
-								<input class="form-check-input" type="checkbox" id="send-humidity" name="send_humidity" disabled>
-								<label class="form-check-label" for="send-humidity">Humidity</label>
-								<span id="humidity-readout"></span>
-							</div>
-
-							<div class="form-check">
-								<input class="form-check-input" type="checkbox" id="send-co2" name="send_co2" disabled>
-								<label class="form-check-label" for="send-co2">CO2</label>
-								<span id="co2-readout"></span>
-							</div>
-
-							<div class="form-check">
-								<input class="form-check-input" type="checkbox" id="send-voc" name="send_voc" disabled>
-								<label class="form-check-label" for="send-voc">VOC</label>
-								<span id="voc-readout"></span>
-							</div>
-
-
-						</div>
-					</form>
-
-					<hr>
-					<p class="w3-large w3-text-theme"><b><button id="toggle-publish" class="btn btn-success disabled">Start publishing</button>
-					</b></p>
-					<br>
-
-
+						<button id="connect" class="btn btn-success">Connect</button>
 					</div>
-
 				</div>
 			</div>
 
+			<div class="col-md-8 mb-3">
+				<div class="card">
+					<div class="card-header d-none d-md-flex logo-bar">
+						<span class="logo nrf-logo"></span>
+						<h2>Thingy:52 IOTA Data Marketplace Publisher</h2>
+					</div>
+					<div class="card-body">
+						<div class="clearfix mb-3">
+							<button type="button" class="btn btn-success btn-sm float-right" id="add-device-button">
+								<i class="fas fa-plus"></i>
+								Add Thingy
+							</button>
+						</div>
 
-			<!-- End Right Column -->
+						<form id="settings-form">
+							<div class="row">
+								<div class="col-md-6">
+									<div class="row">
+										<div class="col-6 form-group border-right">
+											<label>Status</label>
+											<input readonly id="publish-state" class="form-control-plaintext" value="Not publishing">
+										</div>
+										<div class="col-6 form-group my-border-right-0 my-border-md-right">
+											<label>Next publish</label>
+											<input readonly id="publish-next" class="form-control-plaintext" value="Never">
+
+										</div>
+									</div>
+								</div>
+								<div class="col-md-6">
+									<hr class="d-md-none">
+									<div class="row">
+										<div class="col-md-6 form-group my-border-right-0 my-border-md-right">
+											<label for="idmp_uuid">
+												Device ID
+											</label>
+											<input class="form-control" type="text" id="idmp_uuid">
+										</div>
+										<div class="col-md-6 form-group">
+											<label for="idmp_secretKey">Secret Key</label>
+											<input class="form-control" type="text" id="idmp_secretKey">
+										</div>
+									</div>
+								</div>
+							</div>
+
+							<hr>
+
+							<div class="row">
+								<div class="form-group col-lg-6">
+									<label>Set Publish Interval</label>
+									<div class="input-group">
+										<div class="input-group-prepend">
+											<span class="input-group-text">Every</span>
+										</div>
+										<input class="form-control" type="number" name="send_interval" min="1" id="send-interval" value="1" disabled>
+										<div class="input-group-append">
+											<span class="input-group-text">minutes</span>
+										</div>
+									</div>
+								</div>
+							</div>
+
+							<hr>
+
+							<div class="form-group">
+								<label>Select Sensors</label>
+
+								<div class="form-check">
+									<div class="row">
+										<div class="col-sm-2">
+											<input class="form-check-input" type="checkbox" id="send-temperature" name="send_temperature" disabled>
+											<label class="form-check-label" for="send-temperature">Temperature</label>
+										</div>
+										<div class="col-sm-4">
+											<span class="readout" id="temperature-readout"></span>
+										</div>
+									</div>
+								</div>
+
+								<div class="form-check">
+									<div class="row">
+										<div class="col-sm-2">
+											<input class="form-check-input" type="checkbox" id="send-pressure" name="send_pressure" disabled>
+											<label class="form-check-label" for="send-pressure">Pressure</label>
+										</div>
+										<div class="col-sm-4">
+											<span class="readout" id="pressure-readout"></span>
+										</div>
+									</div>
+								</div>
+
+								<div class="form-check">
+									<div class="row">
+										<div class="col-sm-2">
+											<input class="form-check-input" type="checkbox" id="send-humidity" name="send_humidity" disabled>
+											<label class="form-check-label" for="send-humidity">Humidity</label>
+										</div>
+										<div class="col-sm-4">
+											<span class="readout" id="humidity-readout"></span>
+										</div>
+									</div>
+								</div>
+
+								<div class="form-check">
+									<div class="row">
+										<div class="col-sm-2">
+											<input class="form-check-input" type="checkbox" id="send-co2" name="send_co2" disabled>
+											<label class="form-check-label" for="send-co2">CO2</label>
+										</div>
+										<div class="col-sm-4">
+											<span class="readout" id="co2-readout"></span>
+										</div>
+									</div>
+								</div>
+
+								<div class="form-check">
+									<div class="row">
+										<div class="col-sm-2">
+											<input class="form-check-input" type="checkbox" id="send-voc" name="send_voc" disabled>
+											<label class="form-check-label" for="send-voc">VOC</label>
+										</div>
+										<div class="col-sm-4">
+											<span class="readout" id="voc-readout"></span>
+										</div>
+									</div>
+								</div>
+
+							</div>
+						</form>
+
+						<hr>
+						<button id="toggle-publish" class="btn btn-success disabled">Start publishing</button>
+						<a class="float-right btn btn-link disabled" target="_blank" id="data-stream-link" href="#">View data stream</a>
+					</div>
+				</div>
+			</div>
 		</div>
 
-		<!-- End Grid -->
+		<!-- End Page Container -->
 	</div>
 
-	<!-- End Page Container -->
-</div>
+	<!-- Modal -->
+	<div class="modal fade" id="add-device-modal" tabindex="-1" role="dialog" aria-labelledby="add-device-modal-label" aria-hidden="true">
+		<div class="modal-dialog modal-lg " role="document">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title" id="add-device-modal-label">Add device on IOTA data marketplace</h5>
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+						<span aria-hidden="true">&times;</span>
+					</button>
+				</div>
+				<div class="modal-body">
+					<form id="add-device-form">
+						<p>
+							To get API key and Owner, log into the
+							<a target="_blank" href="https://data.iota.org/dashboard">IOTA Data Marketplace Dashboard</a>.
+							Copy the API key and User ID from the Dashboard into API key and Owner, respectivly.
+							From here you can also manage your devices. Device ID is the name of the deivce.
+						</p>
+						<p>
+							Note that IOTA Data Marketplace allows at most 3 devices.
+						</p>
 
+						<div class="form-group row">
+							<label class="col-sm-2 col-form-label">
+								API key
+								<i class="float-right text-muted fas fa-question-circle" data-toggle="tooltip" data-placement="top" title="The API Key from Iota Data Marketplace Dashboard"></i>
+							</label>
+							<div class="col-sm-10">
+								<input type="text" class="form-control" name="api-key" required>
+							</div>
+						</div>
 
-<footer class="w3-container w3-teal w3-center w3-margin-top">
-	<br>
-	<p>Nordic Semiconductor</p>
-	<i class="fa fa-facebook-official w3-hover-opacity"></i>
-	<i class="fa fa-instagram w3-hover-opacity"></i>
-	<i class="fa fa-snapchat w3-hover-opacity"></i>
-	<i class="fa fa-pinterest-p w3-hover-opacity"></i>
-	<i class="fa fa-twitter w3-hover-opacity"></i>
-	<i class="fa fa-linkedin w3-hover-opacity"></i>
-	<!-- <p>Powered by <a href="https://www.w3schools.com/w3css/default.asp" target="_blank">w3.css</a></p> -->
-</footer>
+						<div class="form-group row">
+							<label class="col-sm-2 col-form-label">
+								Owner
+								<i class="float-right text-muted fas fa-question-circle" data-toggle="tooltip" data-placement="top" title="The User Id from Iota Data Marketplace Dashboard"></i>
+							</label>
+							<div class="col-sm-10">
+								<input type="text" class="form-control" name="device-owner" required>
+							</div>
+						</div>
 
+						<div class="form-group row">
+							<label class="col-sm-2 col-form-label">
+								Device ID
+								<i class="float-right text-muted fas fa-question-circle" data-toggle="tooltip" data-placement="top" title="The name of the device"></i>
+							</label>
+							<div class="col-sm-10">
+								<input type="text" class="form-control" name="device-id" required>
+							</div>
+						</div>
+
+						<div class="form-group row">
+							<label class="col-sm-2 col-form-label">City</label>
+							<div class="col-sm-10">
+								<input type="text" class="form-control" name="device-city" required>
+							</div>
+						</div>
+
+						<div class="form-group row">
+							<label class="col-sm-2 col-form-label">Country</label>
+							<div class="col-sm-10">
+								<input type="text" class="form-control" name="device-country" required>
+							</div>
+						</div>
+
+						<div class="form-group row">
+							<label class="col-sm-2 col-form-label">Latitude</label>
+							<div class="col-sm-10">
+								<input type="text" class="form-control" name="device-latitude" required>
+							</div>
+						</div>
+
+						<div class="form-group row">
+							<label class="col-sm-2 col-form-label">Longditude</label>
+							<div class="col-sm-10">
+								<input type="text" class="form-control" name="device-longditude" required>
+							</div>
+						</div>
+
+						<div class="form-group row">
+							<label class="col-sm-2 col-form-label">Channels</label>
+							<div class="col-sm-10">
+								<div class="form-check">
+									<input class="form-check-input" id="channel-temperature" type="checkbox" name="channel-temperature" checked>
+									<label class="form-check-label" for="channel-temperature">Temperature</label>
+								</div>
+
+								<div class="form-check">
+									<input class="form-check-input" id="channel-pressure" type="checkbox" name="channel-pressure" checked>
+									<label class="form-check-label" for="channel-pressure">Pressure</label>
+								</div>
+
+								<div class="form-check">
+									<input class="form-check-input" id="channel-humidity" type="checkbox" name="channel-humidity" checked>
+									<label class="form-check-label" for="channel-humidity">Humidity</label>
+								</div>
+
+								<div class="form-check">
+									<input class="form-check-input" id="channel-co2" type="checkbox" name="channel-co2" checked>
+									<label class="form-check-label" for="channel-co2">CO2</label>
+								</div>
+
+								<div class="form-check">
+									<input class="form-check-input" id="channel-voc" type="checkbox" name="channel-voc" checked>
+									<label class="form-check-label" for="channel-voc">VOC</label>
+								</div>
+								<div class="text-danger d-none" id="add-devie-modal-channels-error">
+									You must select at least one channel.
+								</div>
+							</div>
+						</div>
+					</form>
+				</div>
+				<div class="modal-footer">
+					<div id="modal-state-creating" class="d-none">
+						Creating...
+						<i class="fas fa-spinner spinner"></i>
+					</div>
+					<div id="modal-state-accept">
+						<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+						<button type="button" id="add-device" class="btn btn-primary">Save changes</button>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<!-- End modal -->
+
+	<footer class="fixed-bottom text-center text-light bg-teal pt-4">
+		<p>Nordic Semiconductor</p>
+
+		<a class="text-light" href="https://www.facebook.com/nordicsemiconductor/">
+			<i class="fab fa-facebook-official"></i>
+		</a>
+		<a class="text-light" href="https://www.instagram.com/nordicsemi/?hl=nb">
+			<i class="fab fa-instagram"></i>
+		</a>
+		<a class="text-light" href="https://twitter.com/nordictweets?lang=no">
+			<i class="fab fa-twitter"></i>
+		</a>
+		<a class="text-light" href="https://www.linkedin.com/company/nordic-semiconductor-asa/?originalSubdomain=no">
+			<i class="fab fa-linkedin"></i>
+		</a>
+	</footer>
+
+	<script src="/css/jquery.min.js"></script>
+	<script src="/css/popper.min.js"></script>
+	<script src="/css/bootstrap.min.js"></script>
+	<script type="module" src="bundle.js"></script>
 </body>
+
 </html>
