@@ -136,7 +136,7 @@ export const createDevice = async (apikey, owner, name, position, channels) => {
 			'device': {
 				'sensorId': name,
 				'type': 'Nordic Thingy:52',
-				'value': '82913',
+				'value': '1',
 				'location': {
 					'country': position.country,
 					'city': position.city,
