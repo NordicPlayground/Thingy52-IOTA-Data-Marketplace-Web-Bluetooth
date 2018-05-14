@@ -1,12 +1,13 @@
 # Thingy:52 IOTA Data Marketplace Publisher
 The *Thingy\:52 IOTA Data Marketplace Publisher* (Thingy IDMP
 Publisher) allows for connecting to the Nordic Semiconductor
-Thingy\:52 throug Web Bluetooth. The sensor data can then be sent to
-the [IOTA Data Marketplace](https://data.iota.org/) (IDMP). This is
-all done from within the web browser.
+Thingy\:52 throug Web Bluetooth, to collect sensor readings. The
+sensor data can then be sent to the
+[IOTA Data Marketplace](https://data.iota.org/) (IDMP). This is all
+done from within the web browser.
 
-This project was developed by a group of students from NTNU as part of
-their bachelor project.
+The Thingy IDMP Publisher was developed by a group of students from
+NTNU as part of their bachelor project.
 
 ## Setup
 To get this application running for debug or production, you need:
@@ -25,13 +26,14 @@ terminal. To get a dev install running:
 ### Web Bluetooth
 This application currently only work in Google Chorme (or Chromium)
 version 56 or above because of the requirement for Web
-Bluetooth. Make sure to enable the
-[chrome://flags/#enable-experimental-web-platform-features]('Experimental Web Platform Features').
+Bluetooth. Make sure to enable the 'Experimental Web Platform
+Features', by going to `chrome://flags/#enable-experimental-web-platform-features`.
 
 ### IOTA Data Marketplace
-The Thingy IDMP Publisher requires a device on the IDMP. Creating this
-device requires an account on the [IDMP dashboard](https://data.iota.org/dashboard).
-Use one of the following methods to add an IDMP device.
+To publish data to the IDMP, and IDMP device is needed, and creating
+this device requires an account on the [IDMP dashboard](https://data.iota.org/dashboard).
+First, create an account, and then use one of the following methods to
+add an IDMP device.
 
 
 #### Creating Device using the Publisher (recommended)
