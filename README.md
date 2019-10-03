@@ -1,4 +1,7 @@
 # Thingy:52 IOTA Data Marketplace Publisher
+
+[![Greenkeeper badge](https://badges.greenkeeper.io/NordicPlayground/Thingy52-IOTA-Data-Marketplace-Web-Bluetooth.svg)](https://greenkeeper.io/)
+
 The *Thingy\:52 IOTA Data Marketplace Publisher* (Thingy IDMP
 Publisher) allows for connecting to the Nordic Semiconductor
 Thingy\:52 throug Web Bluetooth, to collect sensor readings. The
